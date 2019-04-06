@@ -1,0 +1,19 @@
+# OS-specific files
+.DS_Store
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Caches
+*.tsbuildinfo
+.eslintcache
+
+# Dependency directories
+node_modules/
+
+# Build directory
+dist/

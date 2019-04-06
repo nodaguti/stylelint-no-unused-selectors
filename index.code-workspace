@@ -1,0 +1,23 @@
+{
+  "folders": [
+    {
+      "name": "root",
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "eslint.packageManager": "yarn",
+    "eslint.autoFixOnSave": true,
+    "eslint.alwaysShowStatus": true,
+    "eslint.validate": ["javascript", "typescript"],
+    "files.exclude": {
+      "**/npm-debug.log": true,
+      "**/yarn-error.log": true,
+      "**/dist/": true,
+      "**/.eslintcache": true
+    },
+    "typescript.tsdk": "node_modules/typescript/lib"
+  }
+}
