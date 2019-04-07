@@ -1,3 +1,1 @@
-export function add(a: number, b: number): number {
-  return a + b;
-}
+export { default, ruleName, messages } from './stylelint-no-unused-selectors';

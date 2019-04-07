@@ -1,0 +1,19 @@
+/* good */
+.list {
+  color: black;
+}
+
+/* good */
+.list-item {
+  color: black;
+}
+
+/* bad */
+.not-found {
+  color: black;
+}
+
+/* bad */
+.list-item:last-child + li {
+  color: red;
+}
