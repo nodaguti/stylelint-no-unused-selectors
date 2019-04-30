@@ -1,5 +1,6 @@
 import { JSDOM } from 'jsdom';
 import { Undefinable } from 'option-t/lib/Undefinable';
+import PostcssSelectorParser from 'postcss-selector-parser';
 
 import { Parser } from '../parser';
 
@@ -14,11 +15,12 @@ export class HTMLParser implements Parser {
     this._dom = new JSDOM(html);
   }
 
-  public match(selector: string): boolean {
+  public match(selectorAst: PostcssSelectorParser.Root): boolean {
     if (this._dom === undefined) {
       throw new Error('Call parse() before match().');
     }
 
+    const selector = selectorAst.toString();
     const matched = this._dom.window.document.querySelector(selector);
     return matched !== null;
   }

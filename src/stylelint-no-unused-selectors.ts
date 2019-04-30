@@ -1,5 +1,6 @@
 import path from 'path';
 import { Undefinable } from 'option-t/lib/Undefinable';
+import { unwrapUndefinable } from 'option-t/lib/Undefinable/unwrap';
 import { andThenForUndefinable } from 'option-t/lib/Undefinable/andThen';
 
 import flatMap from 'array.prototype.flatmap';
@@ -8,6 +9,7 @@ import stylelint from 'stylelint';
 import { Root, Result } from 'postcss';
 // @ts-ignore
 import resolveNestedSelector from 'postcss-resolve-nested-selector';
+import createSelectorProcessor from 'postcss-selector-parser';
 
 import { DeepPartial } from './deep-partial';
 import { resolveDocuments, resolveDocument } from './document-resolver';
@@ -18,6 +20,8 @@ export const messages = stylelint.utils.ruleMessages(ruleName, {
   rejected: (selector: string, documentName: string): string =>
     `${selector} is defined but doesn't match any elements in ${documentName}.`,
 });
+
+const selectorProcessor = createSelectorProcessor();
 
 function getCSSSource(root: Root): Undefinable<string> {
   return andThenForUndefinable(
@@ -105,7 +109,7 @@ function rule(
     await parser.parse(document);
 
     root.walkRules(
-      (rule): void => {
+      async (rule): Promise<void> => {
         if (!rule.selectors) {
           return;
         }
@@ -115,23 +119,21 @@ function rule(
           (selectors): string[] => resolveNestedSelector(selectors, rule),
         );
 
-        resolvedSelectors.forEach(
-          (selector): void => {
-            const matched = parser.match(selector);
+        async function processSelector(selector: string): Promise<void> {
+          const selectorAst = await selectorProcessor.ast(selector);
+          const matched = await unwrapUndefinable(parser).match(selectorAst);
 
-            if (!matched) {
-              stylelint.utils.report({
-                result,
-                ruleName,
-                node: rule,
-                message: messages.rejected(
-                  selector,
-                  path.basename(documentPath),
-                ),
-              });
-            }
-          },
-        );
+          if (!matched) {
+            stylelint.utils.report({
+              result,
+              ruleName,
+              node: rule,
+              message: messages.rejected(selector, path.basename(documentPath)),
+            });
+          }
+        }
+
+        await Promise.all(resolvedSelectors.map(processSelector));
       },
     );
   };

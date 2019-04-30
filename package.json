@@ -35,6 +35,7 @@
     "jsdom": "^14.0.0",
     "option-t": "^19.2.0",
     "postcss-resolve-nested-selector": "^0.1.1",
+    "postcss-selector-parser": "^6.0.2",
     "string-template": "^1.0.0"
   },
   "peerDependencies": {
