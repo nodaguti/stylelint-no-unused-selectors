@@ -9,14 +9,14 @@ Object {
   "warnings": Array [
     Object {
       "column": 1,
-      "line": 12,
+      "line": 27,
       "rule": "plugin/no-unused-selectors",
       "severity": "error",
       "text": ".not-found is defined but doesn't match any elements in test.html. (plugin/no-unused-selectors)",
     },
     Object {
       "column": 1,
-      "line": 17,
+      "line": 32,
       "rule": "plugin/no-unused-selectors",
       "severity": "error",
       "text": ".list-item:last-child + li is defined but doesn't match any elements in test.html. (plugin/no-unused-selectors)",

@@ -14,6 +14,7 @@ import createSelectorProcessor from 'postcss-selector-parser';
 import { DeepPartial } from './deep-partial';
 import { resolveDocuments, resolveDocument } from './document-resolver';
 import { createParser } from './parser';
+import { removeUnassertiveSelector } from './remove-unassertive-selector';
 
 export const ruleName = 'plugin/no-unused-selectors';
 export const messages = stylelint.utils.ruleMessages(ruleName, {
@@ -121,7 +122,8 @@ function rule(
 
         async function processSelector(selector: string): Promise<void> {
           const selectorAst = await selectorProcessor.ast(selector);
-          const matched = await unwrapUndefinable(parser).match(selectorAst);
+          const filteredAst = removeUnassertiveSelector(selectorAst);
+          const matched = await unwrapUndefinable(parser).match(filteredAst);
 
           if (!matched) {
             stylelint.utils.report({

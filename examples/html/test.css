@@ -8,6 +8,21 @@
   color: black;
 }
 
+/* good */
+li:nth-of-type(2n) {
+  color: black;
+}
+
+/* good */
+.list > .list-item:nth-last-of-type(1)::before {
+  color: black;
+}
+
+/* good (:target, :hover is ignored) */
+.list:target > .list-item:hover {
+  color: black;
+}
+
 /* bad */
 .not-found {
   color: black;
