@@ -15,26 +15,13 @@ import PostcssSelectorParser from 'postcss-selector-parser';
 
 import { Parser } from '../parser';
 import { jsxWalker } from '../utils/acorn-jsx-walker';
+import { isSimpleSelector } from '../utils/is-simple-selector';
 
 const acornOptions = {
   sourceType: 'module' as const,
 };
 
 const JSXAcornParser = AcornParser.extend(acornJSX());
-
-function isSimpleSelector(rootNode: PostcssSelectorParser.Root): boolean {
-  const selectorNode = rootNode.nodes[0] as PostcssSelectorParser.Selector;
-
-  if (selectorNode.nodes.length !== 1) {
-    return false;
-  }
-
-  const type = selectorNode.nodes[0].type;
-
-  return (
-    type === PostcssSelectorParser.ID || type === PostcssSelectorParser.CLASS
-  );
-}
 
 function extractAttributeValue(node: JSXAttribute): Undefinable<string> {
   const valueNode = node.value;

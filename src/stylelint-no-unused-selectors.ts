@@ -11,10 +11,11 @@ import { Root, Result } from 'postcss';
 import resolveNestedSelector from 'postcss-resolve-nested-selector';
 import createSelectorProcessor from 'postcss-selector-parser';
 
-import { DeepPartial } from './types/deep-partial';
-import { resolveDocuments, resolveDocument } from './document-resolver';
 import { createParser } from './parser';
-import { removeUnassertiveSelector } from './remove-unassertive-selector';
+
+import { DeepPartial } from './types/deep-partial';
+import { resolveDocuments, resolveDocument } from './utils/document-resolver';
+import { removeUnassertiveSelector } from './utils/remove-unassertive-selector';
 
 export const ruleName = 'plugin/no-unused-selectors';
 export const messages = stylelint.utils.ruleMessages(ruleName, {
