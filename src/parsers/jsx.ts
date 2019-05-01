@@ -35,6 +35,88 @@ function extractAttributeValue(node: JSXAttribute): Undefinable<string> {
   return valueNode.value;
 }
 
+function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
+  const cssModuleSpecifiers: string[] = [];
+  let classes: string[] = [];
+  let ids: string[] = [];
+
+  walkSimple(
+    ast,
+    {
+      ImportDeclaration(node: ImportDeclaration): void {
+        if (!node.source.value.endsWith('.css')) {
+          return;
+        }
+
+        node.specifiers.forEach(
+          (specifier): void => {
+            cssModuleSpecifiers.push(specifier.local.name);
+          },
+        );
+      },
+
+      VariableDeclarator(node: VariableDeclarator): void {
+        if (!node.init || node.init.type !== 'CallExpression') {
+          return;
+        }
+
+        const callExpr = node.init as CallExpression;
+
+        // @ts-ignore
+        if (callExpr.callee.name !== 'require') {
+          return;
+        }
+
+        // @ts-ignore
+        const source: string = callExpr.arguments[0].value;
+
+        if (source && source.endsWith('.css')) {
+          // @ts-ignore
+          cssModuleSpecifiers.push(node.id.name);
+        }
+      },
+
+      MemberExpression(node: MemberExpression): void {
+        // @ts-ignore
+        if (cssModuleSpecifiers.includes(node.object.name)) {
+          classes.push(`.${node.property.value || node.property.name}`);
+        }
+      },
+
+      JSXAttribute(node: JSXAttribute): void {
+        if (node.name.name === 'className') {
+          const classNames = extractAttributeValue(node);
+
+          if (classNames) {
+            classes = classes.concat(
+              classNames
+                .split(' ')
+                .filter((c): boolean => !!c)
+                .map((c): string => `.${c}`),
+            );
+          }
+        }
+
+        if (node.name.name === 'id') {
+          const idNames = extractAttributeValue(node);
+
+          if (idNames) {
+            ids = ids.concat(
+              idNames
+                .split(' ')
+                .filter((i): boolean => !!i)
+                .map((i): string => `#${i}`),
+            );
+          }
+        }
+      },
+    },
+    jsxWalker,
+  );
+
+  return { classes, ids };
+}
+
 export class JSXParser implements Parser {
   private _ast: Undefinable<Node>;
   private _classes: string[];
@@ -49,83 +131,7 @@ export class JSXParser implements Parser {
   public parse(jsx: string): void {
     this._ast = JSXAcornParser.parse(jsx, acornOptions);
 
-    const cssModuleSpecifiers: string[] = [];
-    let classes: string[] = [];
-    let ids: string[] = [];
-
-    walkSimple(
-      this._ast,
-      {
-        ImportDeclaration(node: ImportDeclaration): void {
-          if (!node.source.value.endsWith('.css')) {
-            return;
-          }
-
-          node.specifiers.forEach(
-            (specifier): void => {
-              cssModuleSpecifiers.push(specifier.local.name);
-            },
-          );
-        },
-
-        VariableDeclarator(node: VariableDeclarator): void {
-          if (!node.init || node.init.type !== 'CallExpression') {
-            return;
-          }
-
-          const callExpr = node.init as CallExpression;
-
-          // @ts-ignore
-          if (callExpr.callee.name !== 'require') {
-            return;
-          }
-
-          // @ts-ignore
-          const source: string = callExpr.arguments[0].value;
-
-          if (source && source.endsWith('.css')) {
-            // @ts-ignore
-            cssModuleSpecifiers.push(node.id.name);
-          }
-        },
-
-        MemberExpression(node: MemberExpression): void {
-          // @ts-ignore
-          if (cssModuleSpecifiers.includes(node.object.name)) {
-            classes.push(`.${node.property.value || node.property.name}`);
-          }
-        },
-
-        JSXAttribute(node: JSXAttribute): void {
-          if (node.name.name === 'className') {
-            const classNames = extractAttributeValue(node);
-
-            if (classNames) {
-              classes = classes.concat(
-                classNames
-                  .split(' ')
-                  .filter((c): boolean => !!c)
-                  .map((c): string => `.${c}`),
-              );
-            }
-          }
-
-          if (node.name.name === 'id') {
-            const idNames = extractAttributeValue(node);
-
-            if (idNames) {
-              ids = ids.concat(
-                idNames
-                  .split(' ')
-                  .filter((i): boolean => !!i)
-                  .map((i): string => `#${i}`),
-              );
-            }
-          }
-        },
-      },
-      jsxWalker,
-    );
+    const { classes, ids } = extractClassesAndIds(this._ast);
 
     this._classes = classes;
     this._ids = ids;
