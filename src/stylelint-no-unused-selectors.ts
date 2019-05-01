@@ -11,7 +11,7 @@ import { Root, Result } from 'postcss';
 import resolveNestedSelector from 'postcss-resolve-nested-selector';
 import createSelectorProcessor from 'postcss-selector-parser';
 
-import { DeepPartial } from './deep-partial';
+import { DeepPartial } from './types/deep-partial';
 import { resolveDocuments, resolveDocument } from './document-resolver';
 import { createParser } from './parser';
 import { removeUnassertiveSelector } from './remove-unassertive-selector';
