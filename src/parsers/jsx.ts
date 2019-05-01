@@ -3,7 +3,13 @@ import { Parser as AcornParser, Node } from 'acorn';
 import acornJSX from 'acorn-jsx';
 // @ts-ignore
 import { simple as walkSimple } from 'acorn-walk';
-import { JSXAttribute } from '@babel/types';
+import {
+  JSXAttribute,
+  ImportDeclaration,
+  MemberExpression,
+  VariableDeclarator,
+  CallExpression,
+} from '@babel/types';
 import { Undefinable } from 'option-t/lib/Undefinable';
 import PostcssSelectorParser from 'postcss-selector-parser';
 
@@ -56,12 +62,53 @@ export class JSXParser implements Parser {
   public parse(jsx: string): void {
     this._ast = JSXAcornParser.parse(jsx, acornOptions);
 
+    const cssModuleSpecifiers: string[] = [];
     let classes: string[] = [];
     let ids: string[] = [];
 
     walkSimple(
       this._ast,
       {
+        ImportDeclaration(node: ImportDeclaration): void {
+          if (!node.source.value.endsWith('.css')) {
+            return;
+          }
+
+          node.specifiers.forEach(
+            (specifier): void => {
+              cssModuleSpecifiers.push(specifier.local.name);
+            },
+          );
+        },
+
+        VariableDeclarator(node: VariableDeclarator): void {
+          if (!node.init || node.init.type !== 'CallExpression') {
+            return;
+          }
+
+          const callExpr = node.init as CallExpression;
+
+          // @ts-ignore
+          if (callExpr.callee.name !== 'require') {
+            return;
+          }
+
+          // @ts-ignore
+          const source: string = callExpr.arguments[0].value;
+
+          if (source && source.endsWith('.css')) {
+            // @ts-ignore
+            cssModuleSpecifiers.push(node.id.name);
+          }
+        },
+
+        MemberExpression(node: MemberExpression): void {
+          // @ts-ignore
+          if (cssModuleSpecifiers.includes(node.object.name)) {
+            classes.push(`.${node.property.value || node.property.name}`);
+          }
+        },
+
         JSXAttribute(node: JSXAttribute): void {
           if (node.name.name === 'className') {
             const classNames = extractAttributeValue(node);

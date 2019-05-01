@@ -1,0 +1,40 @@
+/* good */
+.list-item {
+  color: black;
+}
+
+/* good */
+.list-item-2 {
+  color: black;
+}
+
+/* good */
+.list-link {
+  color: black;
+}
+
+/* good */
+.list,
+.list-item::before {
+  color: black;
+}
+
+/* bad */
+.not-found {
+  color: red;
+}
+
+/* ignored */
+.list .list-item {
+  color: gray;
+}
+
+/* ignored */
+.list-item:last-child {
+  color: gray;
+}
+
+/* ignored */
+.not-found:nth-child(2n) {
+  color: gray;
+}

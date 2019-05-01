@@ -44,3 +44,17 @@ test('Disabllow selectors that are not used in a JSX file', async (): Promise<
   expect(result.errored).toBe(true);
   expect(parseResult(result)).toMatchSnapshot();
 });
+
+test('Disabllow selectors that are not used in a JSX file using CSS Modules', async (): Promise<
+  void
+> => {
+  const options = {
+    configFile: configFilePath,
+    files: path.join(fixturesRoot, 'jsx-with-css-modules', '*.css'),
+  };
+
+  const result = await stylelint.lint(options);
+
+  expect(result.errored).toBe(true);
+  expect(parseResult(result)).toMatchSnapshot();
+});
