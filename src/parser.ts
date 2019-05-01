@@ -4,6 +4,7 @@ import PostcssSelectorParser from 'postcss-selector-parser';
 
 import { HTMLParser } from './parsers/html';
 import { JSXParser } from './parsers/jsx';
+import { TSXParser } from './parsers/tsx';
 
 export interface Parser {
   parse(document: string): void | Promise<void>;
@@ -21,6 +22,9 @@ export function createParser(docPath: string): Undefinable<Parser> {
     case '.jsx':
     case '.js':
       return new JSXParser();
+
+    case '.tsx':
+      return new TSXParser();
 
     default:
       return undefined;
