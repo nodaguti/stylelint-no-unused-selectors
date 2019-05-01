@@ -30,8 +30,10 @@
   },
   "dependencies": {
     "@typescript-eslint/parser": "^1.6.0",
+    "acorn": "^6.1.1",
+    "acorn-jsx": "^5.0.1",
+    "acorn-walk": "^6.1.1",
     "array.prototype.flatmap": "^1.2.1",
-    "espree": "^5.0.1",
     "jsdom": "^14.0.0",
     "option-t": "^19.2.0",
     "postcss-resolve-nested-selector": "^0.1.1",
@@ -42,6 +44,7 @@
     "stylelint": "^9.10.1"
   },
   "devDependencies": {
+    "@babel/types": "^7.4.4",
     "@types/array.prototype.flatmap": "^1.2.0",
     "@types/jest": "^24.0.11",
     "@types/jsdom": "^12.2.3",
