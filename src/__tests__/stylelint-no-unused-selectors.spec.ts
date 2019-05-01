@@ -45,6 +45,20 @@ test('Disabllow selectors that are not used in a JSX file', async (): Promise<
   expect(parseResult(result)).toMatchSnapshot();
 });
 
+test('Disabllow selectors that are not used in a flow-typed JSX file', async (): Promise<
+  void
+> => {
+  const options = {
+    configFile: configFilePath,
+    files: path.join(fixturesRoot, 'jsx-with-flow', '*.css'),
+  };
+
+  const result = await stylelint.lint(options);
+
+  expect(result.errored).toBe(true);
+  expect(parseResult(result)).toMatchSnapshot();
+});
+
 test('Disabllow selectors that are not used in a JSX file using CSS Modules', async (): Promise<
   void
 > => {

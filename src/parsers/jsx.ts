@@ -12,6 +12,8 @@ import {
 } from '@babel/types';
 import { Undefinable } from 'option-t/lib/Undefinable';
 import PostcssSelectorParser from 'postcss-selector-parser';
+// @ts-ignore
+import removeFlowTypes from 'flow-remove-types';
 
 import { Parser } from '../parser';
 import { jsxWalker } from '../utils/acorn-jsx-walker';
@@ -129,10 +131,11 @@ export class JSXParser implements Parser {
   }
 
   public parse(jsx: string): void {
-    this._ast = JSXAcornParser.parse(jsx, acornOptions);
+    const jsxWithoutFlow = removeFlowTypes(jsx);
+    const ast = JSXAcornParser.parse(jsxWithoutFlow, acornOptions);
+    const { classes, ids } = extractClassesAndIds(ast);
 
-    const { classes, ids } = extractClassesAndIds(this._ast);
-
+    this._ast = ast;
     this._classes = classes;
     this._ids = ids;
   }
