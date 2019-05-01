@@ -16,43 +16,159 @@ function extractAttributeValue(node: ts.JsxAttribute): Undefinable<string> {
   return (node.initializer as ts.StringLiteral).text;
 }
 
+function extractTextFromIdentifier(node: ts.Identifier): string {
+  return node.text || (node.escapedText as string);
+}
+
 function extractClassesAndIds(
   sourceFile: ts.SourceFile,
 ): { classes: string[]; ids: string[] } {
+  const cssModuleSpecifiers: string[] = [];
   let classes: string[] = [];
   let ids: string[] = [];
 
   function visitor(node: ts.Node): void {
     switch (node.kind) {
-      case ts.SyntaxKind.JsxAttribute: {
-        const attrNode = node as ts.JsxAttribute;
+      case ts.SyntaxKind.ImportDeclaration: {
+        const declNode = node as ts.ImportDeclaration;
 
-        if (attrNode.name.text === 'className') {
-          const classNames = extractAttributeValue(attrNode);
-
-          if (classNames) {
-            classes = classes.concat(
-              classNames
-                .split(' ')
-                .filter((c): boolean => !!c)
-                .map((c): string => `.${c}`),
-            );
-          }
+        if (
+          !(declNode.moduleSpecifier as ts.StringLiteral).text.endsWith('.css')
+        ) {
+          break;
         }
 
-        if (attrNode.name.text === 'id') {
-          const idNames = extractAttributeValue(attrNode);
+        const clauseNode = declNode.importClause;
 
-          if (idNames) {
-            ids = ids.concat(
-              idNames
-                .split(' ')
-                .filter((i): boolean => !!i)
-                .map((i): string => `#${i}`),
-            );
-          }
+        if (!clauseNode) {
+          break;
         }
+
+        if (clauseNode.name !== undefined) {
+          cssModuleSpecifiers.push(extractTextFromIdentifier(clauseNode.name));
+          break;
+        }
+
+        if (!clauseNode.namedBindings) {
+          break;
+        }
+
+        if (ts.isNamedImports(clauseNode.namedBindings)) {
+          clauseNode.namedBindings.elements.forEach(
+            (specifier): void => {
+              cssModuleSpecifiers.push(
+                extractTextFromIdentifier(specifier.name),
+              );
+            },
+          );
+          break;
+        }
+
+        if (ts.isNamespaceImport(clauseNode.namedBindings)) {
+          cssModuleSpecifiers.push(
+            extractTextFromIdentifier(clauseNode.namedBindings.name),
+          );
+          break;
+        }
+
+        break;
       }
+
+      case ts.SyntaxKind.VariableDeclaration: {
+        const declNode = node as ts.VariableDeclaration;
+
+        if (
+          !declNode.initializer ||
+          !ts.isCallExpression(declNode.initializer)
+        ) {
+          break;
+        }
+
+        const callNode = declNode.initializer;
+
+        if (!ts.isIdentifier(callNode.expression)) {
+          break;
+        }
+
+        if (extractTextFromIdentifier(callNode.expression) !== 'require') {
+          break;
+        }
+
+        const arg = callNode.arguments[0];
+
+        if (ts.isStringLiteral(arg) && arg.text.endsWith('.css')) {
+          cssModuleSpecifiers.push(
+            extractTextFromIdentifier(declNode.name as ts.Identifier),
+          );
+          break;
+        }
+
+        break;
+      }
+
+      case ts.SyntaxKind.PropertyAccessExpression: {
+        const exprNode = node as ts.PropertyAccessExpression;
+
+        if (
+          cssModuleSpecifiers.includes(
+            extractTextFromIdentifier(exprNode.expression as ts.Identifier),
+          )
+        ) {
+          const className = extractTextFromIdentifier(exprNode.name);
+          classes.push(`.${className}`);
+        }
+
+        break;
+      }
+
+      case ts.SyntaxKind.ElementAccessExpression: {
+        const exprNode = node as ts.ElementAccessExpression;
+
+        if (
+          cssModuleSpecifiers.includes(
+            extractTextFromIdentifier(exprNode.expression as ts.Identifier),
+          )
+        ) {
+          const className = (exprNode.argumentExpression as ts.StringLiteral)
+            .text;
+          classes.push(`.${className}`);
+        }
+
+        break;
+      }
+
+      case ts.SyntaxKind.JsxAttribute:
+        {
+          const attrNode = node as ts.JsxAttribute;
+
+          if (extractTextFromIdentifier(attrNode.name) === 'className') {
+            const classNames = extractAttributeValue(attrNode);
+
+            if (classNames) {
+              classes = classes.concat(
+                classNames
+                  .split(' ')
+                  .filter((c): boolean => !!c)
+                  .map((c): string => `.${c}`),
+              );
+            }
+          }
+
+          if (attrNode.name.text === 'id') {
+            const idNames = extractAttributeValue(attrNode);
+
+            if (idNames) {
+              ids = ids.concat(
+                idNames
+                  .split(' ')
+                  .filter((i): boolean => !!i)
+                  .map((i): string => `#${i}`),
+              );
+            }
+          }
+        }
+
+        break;
     }
 
     ts.forEachChild(node, visitor);
