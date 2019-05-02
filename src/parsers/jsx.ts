@@ -11,6 +11,7 @@ import {
   CallExpression,
 } from '@babel/types';
 import { Undefinable } from 'option-t/lib/Undefinable';
+import { andThenForUndefinable } from 'option-t/lib/Undefinable/andThen';
 import PostcssSelectorParser from 'postcss-selector-parser';
 // @ts-ignore
 import removeFlowTypes from 'flow-remove-types';
@@ -37,8 +38,43 @@ function extractAttributeValue(node: JSXAttribute): Undefinable<string> {
   return valueNode.value;
 }
 
+function extractSpecifiersFromImport(
+  node: ImportDeclaration,
+  predicate: (node: ImportDeclaration) => boolean,
+): string[] {
+  if (!predicate(node)) {
+    return [];
+  }
+
+  return node.specifiers.map((specifier): string => specifier.local.name);
+}
+
+function isRequireCall(node: VariableDeclarator): boolean {
+  if (!node.init || node.init.type !== 'CallExpression') {
+    return false;
+  }
+
+  const callExpr = node.init as CallExpression;
+
+  // @ts-ignore
+  const funcName: string = callExpr.callee.name;
+  return funcName === 'require';
+}
+
+function extractSpecifierFromRequire(
+  node: VariableDeclarator,
+  predicate: (node: VariableDeclarator) => boolean,
+): Undefinable<string> {
+  if (!predicate(node)) {
+    return undefined;
+  }
+
+  // @ts-ignore
+  return node.id.name;
+}
+
 function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
-  const cssModuleSpecifiers: string[] = [];
+  let cssModuleSpecifiers: string[] = [];
   let classes: string[] = [];
   let ids: string[] = [];
 
@@ -46,36 +82,34 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
     ast,
     {
       ImportDeclaration(node: ImportDeclaration): void {
-        if (!node.source.value.endsWith('.css')) {
-          return;
-        }
-
-        node.specifiers.forEach(
-          (specifier): void => {
-            cssModuleSpecifiers.push(specifier.local.name);
-          },
+        cssModuleSpecifiers = cssModuleSpecifiers.concat(
+          extractSpecifiersFromImport(
+            node,
+            (node): boolean => {
+              return node.source.value.endsWith('.css');
+            },
+          ),
         );
       },
 
       VariableDeclarator(node: VariableDeclarator): void {
-        if (!node.init || node.init.type !== 'CallExpression') {
+        if (!isRequireCall(node)) {
           return;
         }
 
-        const callExpr = node.init as CallExpression;
-
-        // @ts-ignore
-        if (callExpr.callee.name !== 'require') {
-          return;
-        }
-
-        // @ts-ignore
-        const source: string = callExpr.arguments[0].value;
-
-        if (source && source.endsWith('.css')) {
-          // @ts-ignore
-          cssModuleSpecifiers.push(node.id.name);
-        }
+        andThenForUndefinable(
+          extractSpecifierFromRequire(
+            node,
+            (node): boolean => {
+              // @ts-ignore
+              const source: string = node.init.arguments[0].value;
+              return !!source && source.endsWith('.css');
+            },
+          ),
+          (specifier): void => {
+            cssModuleSpecifiers.push(specifier);
+          },
+        );
       },
 
       MemberExpression(node: MemberExpression): void {

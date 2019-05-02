@@ -1,5 +1,7 @@
 import ts from 'typescript';
 import { Undefinable } from 'option-t/lib/Undefinable';
+import { unwrapUndefinable } from 'option-t/lib/Undefinable/unwrap';
+import { andThenForUndefinable } from 'option-t/lib/Undefinable/andThen';
 import PostcssSelectorParser from 'postcss-selector-parser';
 
 import { Parser } from '../parser';
@@ -20,10 +22,72 @@ function extractTextFromIdentifier(node: ts.Identifier): string {
   return node.text || (node.escapedText as string);
 }
 
+function extractSpecifiersFromImport(
+  node: ts.ImportDeclaration,
+  predicate: (node: ts.ImportDeclaration) => boolean,
+): string[] {
+  if (!predicate(node)) {
+    return [];
+  }
+
+  const clauseNode = node.importClause;
+
+  if (!clauseNode) {
+    return [];
+  }
+
+  if (clauseNode.name !== undefined) {
+    return [extractTextFromIdentifier(clauseNode.name)];
+  }
+
+  if (!clauseNode.namedBindings) {
+    return [];
+  }
+
+  if (ts.isNamedImports(clauseNode.namedBindings)) {
+    return clauseNode.namedBindings.elements.map(
+      (specifier): string => extractTextFromIdentifier(specifier.name),
+    );
+  }
+
+  if (ts.isNamespaceImport(clauseNode.namedBindings)) {
+    return [extractTextFromIdentifier(clauseNode.namedBindings.name)];
+  }
+
+  return [];
+}
+
+function isRequireCall(node: ts.VariableDeclaration): boolean {
+  if (!node.initializer || !ts.isCallExpression(node.initializer)) {
+    return false;
+  }
+
+  const callNode = node.initializer;
+
+  if (!ts.isIdentifier(callNode.expression)) {
+    return false;
+  }
+
+  const funcName = extractTextFromIdentifier(callNode.expression);
+  return funcName === 'require';
+}
+
+function extractSpecifierFromRequire(
+  node: ts.VariableDeclaration,
+  predicate: (node: ts.VariableDeclaration) => boolean,
+): Undefinable<string> {
+  if (!predicate(node)) {
+    return undefined;
+  }
+
+  const specifier = extractTextFromIdentifier(node.name as ts.Identifier);
+  return specifier;
+}
+
 function extractClassesAndIds(
   sourceFile: ts.SourceFile,
 ): { classes: string[]; ids: string[] } {
-  const cssModuleSpecifiers: string[] = [];
+  let cssModuleSpecifiers: string[] = [];
   let classes: string[] = [];
   let ids: string[] = [];
 
@@ -32,44 +96,16 @@ function extractClassesAndIds(
       case ts.SyntaxKind.ImportDeclaration: {
         const declNode = node as ts.ImportDeclaration;
 
-        if (
-          !(declNode.moduleSpecifier as ts.StringLiteral).text.endsWith('.css')
-        ) {
-          break;
-        }
-
-        const clauseNode = declNode.importClause;
-
-        if (!clauseNode) {
-          break;
-        }
-
-        if (clauseNode.name !== undefined) {
-          cssModuleSpecifiers.push(extractTextFromIdentifier(clauseNode.name));
-          break;
-        }
-
-        if (!clauseNode.namedBindings) {
-          break;
-        }
-
-        if (ts.isNamedImports(clauseNode.namedBindings)) {
-          clauseNode.namedBindings.elements.forEach(
-            (specifier): void => {
-              cssModuleSpecifiers.push(
-                extractTextFromIdentifier(specifier.name),
+        cssModuleSpecifiers = cssModuleSpecifiers.concat(
+          extractSpecifiersFromImport(
+            declNode,
+            (node): boolean => {
+              return (node.moduleSpecifier as ts.StringLiteral).text.endsWith(
+                '.css',
               );
             },
-          );
-          break;
-        }
-
-        if (ts.isNamespaceImport(clauseNode.namedBindings)) {
-          cssModuleSpecifiers.push(
-            extractTextFromIdentifier(clauseNode.namedBindings.name),
-          );
-          break;
-        }
+          ),
+        );
 
         break;
       }
@@ -77,31 +113,25 @@ function extractClassesAndIds(
       case ts.SyntaxKind.VariableDeclaration: {
         const declNode = node as ts.VariableDeclaration;
 
-        if (
-          !declNode.initializer ||
-          !ts.isCallExpression(declNode.initializer)
-        ) {
+        if (!isRequireCall(declNode)) {
           break;
         }
 
-        const callNode = declNode.initializer;
-
-        if (!ts.isIdentifier(callNode.expression)) {
-          break;
-        }
-
-        if (extractTextFromIdentifier(callNode.expression) !== 'require') {
-          break;
-        }
-
-        const arg = callNode.arguments[0];
-
-        if (ts.isStringLiteral(arg) && arg.text.endsWith('.css')) {
-          cssModuleSpecifiers.push(
-            extractTextFromIdentifier(declNode.name as ts.Identifier),
-          );
-          break;
-        }
+        andThenForUndefinable(
+          extractSpecifierFromRequire(
+            declNode,
+            (node): boolean => {
+              const callNode = unwrapUndefinable(
+                node.initializer,
+              ) as ts.CallExpression;
+              const arg = callNode.arguments[0];
+              return ts.isStringLiteral(arg) && arg.text.endsWith('.css');
+            },
+          ),
+          (specifier): void => {
+            cssModuleSpecifiers.push(specifier);
+          },
+        );
 
         break;
       }
