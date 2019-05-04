@@ -3,6 +3,8 @@ import { Parser as AcornParser, Node } from 'acorn';
 import acornJSX from 'acorn-jsx';
 // @ts-ignore
 import { simple as walkSimple } from 'acorn-walk';
+// FIXME: There are lots of @ts-ignore's in this file due to the differences between
+// AST of babylon (@babel/types) and that of acorn.
 import {
   JSXAttribute,
   ImportDeclaration,
