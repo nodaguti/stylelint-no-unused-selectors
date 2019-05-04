@@ -9,6 +9,8 @@ import {
   MemberExpression,
   VariableDeclarator,
   CallExpression,
+  Identifier,
+  StringLiteral,
 } from '@babel/types';
 import { Undefinable } from 'option-t/lib/Undefinable';
 import { andThenForUndefinable } from 'option-t/lib/Undefinable/andThen';
@@ -73,8 +75,40 @@ function extractSpecifierFromRequire(
   return node.id.name;
 }
 
+function extractArgumentsFromClassnamesCall(node: CallExpression): string[] {
+  let classes: string[] = [];
+
+  node.arguments.forEach(
+    (arg): void => {
+      switch (arg.type) {
+        // @ts-ignore
+        case 'Literal': {
+          const className = (arg as StringLiteral).value;
+          if (className) {
+            classes.push(className);
+          }
+          break;
+        }
+
+        case 'ObjectExpression': {
+          classes = classes.concat(
+            arg.properties
+              // @ts-ignore
+              .map((prop): string => prop.key.value)
+              .filter((key): boolean => !!key),
+          );
+          break;
+        }
+      }
+    },
+  );
+
+  return classes;
+}
+
 function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
   let cssModuleSpecifiers: string[] = [];
+  let classNamesSpecifiers: string[] = [];
   let classes: string[] = [];
   let ids: string[] = [];
 
@@ -87,6 +121,15 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
             node,
             (node): boolean => {
               return node.source.value.endsWith('.css');
+            },
+          ),
+        );
+
+        classNamesSpecifiers = classNamesSpecifiers.concat(
+          extractSpecifiersFromImport(
+            node,
+            (node): boolean => {
+              return node.source.value === 'classnames';
             },
           ),
         );
@@ -110,6 +153,32 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
             cssModuleSpecifiers.push(specifier);
           },
         );
+
+        andThenForUndefinable(
+          extractSpecifierFromRequire(
+            node,
+            (node): boolean => {
+              // @ts-ignore
+              const source: string = node.init.arguments[0].value;
+              return !!source && source === 'classnames';
+            },
+          ),
+          (specifier): void => {
+            classNamesSpecifiers.push(specifier);
+          },
+        );
+      },
+
+      CallExpression(node: CallExpression): void {
+        const funcName = (node.callee as Identifier).name;
+
+        if (classNamesSpecifiers.includes(funcName)) {
+          classes = classes.concat(
+            extractArgumentsFromClassnamesCall(node).map(
+              (className): string => `.${className}`,
+            ),
+          );
+        }
       },
 
       MemberExpression(node: MemberExpression): void {
