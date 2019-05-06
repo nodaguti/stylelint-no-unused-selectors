@@ -6,6 +6,9 @@
   "repository": "https://github.com/nodaguti/stylelint-no-unused-selectors",
   "author": "nodaguti",
   "license": "MIT",
+  "engines": {
+    "node": ">=8.16.0"
+  },
   "keywords": [],
   "files": [
     "README.md",
