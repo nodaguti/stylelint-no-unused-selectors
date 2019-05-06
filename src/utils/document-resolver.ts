@@ -1,7 +1,10 @@
 import path from 'path';
 import fs from 'fs';
+import { promisify } from 'util';
 import format from 'string-template';
 import { Undefinable } from 'option-t/lib/Undefinable';
+
+const readFile = promisify(fs.readFile);
 
 export function resolveDocuments(
   cssPath: string,
@@ -29,7 +32,7 @@ export async function resolveDocument(
 > {
   for (const path of paths) {
     try {
-      const content = await fs.promises.readFile(path, { encoding: 'utf-8' });
+      const content = await readFile(path, { encoding: 'utf-8' });
       return {
         path,
         document: content.toString(),
