@@ -2,7 +2,7 @@ import { Parser as AcornParser, Node } from 'acorn';
 // @ts-ignore
 import acornJSX from 'acorn-jsx';
 // @ts-ignore
-import { simple as walkSimple } from 'acorn-walk';
+import { full as walkFull } from 'acorn-walk';
 // FIXME: There are lots of @ts-ignore's in this file due to the differences between
 // AST of babylon (@babel/types) and that of acorn.
 import {
@@ -114,92 +114,14 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
   const classes: string[] = [];
   const ids: string[] = [];
 
-  walkSimple(
-    ast,
-    {
-      ImportDeclaration(node: ImportDeclaration): void {
-        {
-          const specifiers = extractSpecifiersFromImport(
-            node,
-            (node): boolean => {
-              return node.source.value.endsWith('.css');
-            },
-          );
-
-          cssModuleSpecifiers.push(...specifiers);
-        }
-
-        {
-          const specifiers = extractSpecifiersFromImport(
-            node,
-            (node): boolean => {
-              return node.source.value === 'classnames';
-            },
-          );
-
-          classNamesSpecifiers.push(...specifiers);
-        }
-      },
-
-      VariableDeclarator(node: VariableDeclarator): void {
-        if (!isRequireCall(node)) {
-          return;
-        }
-
-        {
-          const specifier = extractSpecifierFromRequire(
-            node,
-            (node): boolean => {
-              // @ts-ignore
-              const source: string = node.init.arguments[0].value;
-              return !!source && source.endsWith('.css');
-            },
-          );
-
-          andThenForUndefinable(
-            specifier,
-            (s): void => void cssModuleSpecifiers.push(s),
-          );
-        }
-
-        {
-          const specifier = extractSpecifierFromRequire(
-            node,
-            (node): boolean => {
-              // @ts-ignore
-              const source: string = node.init.arguments[0].value;
-              return !!source && source === 'classnames';
-            },
-          );
-
-          andThenForUndefinable(
-            specifier,
-            (s): void => void classNamesSpecifiers.push(s),
-          );
-        }
-      },
-
-      CallExpression(node: CallExpression): void {
-        const funcName = (node.callee as Identifier).name;
-
-        if (classNamesSpecifiers.includes(funcName)) {
-          const args = extractArgumentsFromClassnamesCall(node);
-          const classNames = args.map((className): string => `.${className}`);
-
-          classes.push(...classNames);
-        }
-      },
-
-      MemberExpression(node: MemberExpression): void {
+  function handleClassNameAndIdAttributes(node: Node): void {
+    switch (node.type) {
+      case 'JSXAttribute': {
         // @ts-ignore
-        if (cssModuleSpecifiers.includes(node.object.name)) {
-          classes.push(`.${node.property.value || node.property.name}`);
-        }
-      },
+        const attrNode = node as JSXAttribute;
 
-      JSXAttribute(node: JSXAttribute): void {
-        if (node.name.name === 'className') {
-          const classNames = extractAttributeValue(node);
+        if (attrNode.name.name === 'className') {
+          const classNames = extractAttributeValue(attrNode);
 
           if (classNames) {
             const normalisedClassNames = classNames
@@ -211,8 +133,8 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
           }
         }
 
-        if (node.name.name === 'id') {
-          const idNames = extractAttributeValue(node);
+        if (attrNode.name.name === 'id') {
+          const idNames = extractAttributeValue(attrNode);
 
           if (idNames) {
             const normalisedIdNames = idNames
@@ -223,10 +145,138 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
             ids.push(...normalisedIdNames);
           }
         }
-      },
-    },
-    jsxWalker,
-  );
+
+        break;
+      }
+    }
+  }
+
+  function handleCSSModules(node: Node): void {
+    switch (node.type) {
+      case 'ImportDeclaration': {
+        // @ts-ignore
+        const declNode = node as ImportDeclaration;
+        const specifiers = extractSpecifiersFromImport(
+          declNode,
+          (node): boolean => {
+            return node.source.value.endsWith('.css');
+          },
+        );
+
+        cssModuleSpecifiers.push(...specifiers);
+
+        break;
+      }
+
+      case 'VariableDeclarator': {
+        // @ts-ignore
+        const declNode = node as VariableDeclarator;
+
+        if (!isRequireCall(declNode)) {
+          return;
+        }
+
+        const specifier = extractSpecifierFromRequire(
+          declNode,
+          (node): boolean => {
+            // @ts-ignore
+            const source: string = node.init.arguments[0].value;
+            return !!source && source.endsWith('.css');
+          },
+        );
+
+        andThenForUndefinable(
+          specifier,
+          (s): void => void cssModuleSpecifiers.push(s),
+        );
+
+        break;
+      }
+
+      case 'MemberExpression': {
+        // @ts-ignore
+        const exprNode = node as MemberExpression;
+        // @ts-ignore
+        const objName: string = exprNode.object.name;
+
+        if (!cssModuleSpecifiers.includes(objName)) {
+          break;
+        }
+
+        const className = exprNode.property.value || exprNode.property.name;
+        classes.push(`.${className}`);
+
+        break;
+      }
+    }
+  }
+
+  function handleClassNames(node: Node): void {
+    switch (node.type) {
+      case 'ImportDeclaration': {
+        // @ts-ignore
+        const declNode = node as ImportDeclaration;
+        const specifiers = extractSpecifiersFromImport(
+          declNode,
+          (node): boolean => {
+            return node.source.value === 'classnames';
+          },
+        );
+
+        classNamesSpecifiers.push(...specifiers);
+
+        break;
+      }
+
+      case 'VariableDeclarator': {
+        // @ts-ignore
+        const declNode = node as VariableDeclarator;
+
+        if (!isRequireCall(declNode)) {
+          return;
+        }
+
+        const specifier = extractSpecifierFromRequire(
+          declNode,
+          (node): boolean => {
+            // @ts-ignore
+            const source: string = node.init.arguments[0].value;
+            return !!source && source === 'classnames';
+          },
+        );
+
+        andThenForUndefinable(
+          specifier,
+          (s): void => void classNamesSpecifiers.push(s),
+        );
+
+        break;
+      }
+
+      case 'CallExpression': {
+        // @ts-ignore
+        const callNode = node as CallExpression;
+        const funcName = (callNode.callee as Identifier).name;
+
+        if (!classNamesSpecifiers.includes(funcName)) {
+          break;
+        }
+
+        const args = extractArgumentsFromClassnamesCall(callNode);
+        const classNames = args.map((className): string => `.${className}`);
+
+        classes.push(...classNames);
+      }
+    }
+  }
+
+  function visitor(node: Node): void {
+    handleClassNameAndIdAttributes(node);
+    handleCSSModules(node);
+    handleClassNames(node);
+  }
+
+  walkFull(ast, visitor, jsxWalker);
 
   return { classes, ids };
 }
