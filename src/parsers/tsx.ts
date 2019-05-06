@@ -128,135 +128,8 @@ function extractClassesAndIds(
   const classes: string[] = [];
   const ids: string[] = [];
 
-  function visitor(node: ts.Node): void {
+  function handleClassNameAndIdAttributes(node: ts.Node): void {
     switch (node.kind) {
-      case ts.SyntaxKind.ImportDeclaration: {
-        const declNode = node as ts.ImportDeclaration;
-
-        {
-          const specifiers = extractSpecifiersFromImport(
-            declNode,
-            (node): boolean => {
-              return (node.moduleSpecifier as ts.StringLiteral).text.endsWith(
-                '.css',
-              );
-            },
-          );
-
-          cssModuleSpecifiers.push(...specifiers);
-        }
-
-        {
-          const specifiers = extractSpecifiersFromImport(
-            declNode,
-            (node): boolean => {
-              return (
-                (node.moduleSpecifier as ts.StringLiteral).text === 'classnames'
-              );
-            },
-          );
-
-          classNamesSpecifiers.push(...specifiers);
-        }
-
-        break;
-      }
-
-      case ts.SyntaxKind.VariableDeclaration: {
-        const declNode = node as ts.VariableDeclaration;
-
-        if (!isRequireCall(declNode)) {
-          break;
-        }
-
-        {
-          const specifier = extractSpecifierFromRequire(
-            declNode,
-            (node): boolean => {
-              const callNode = unwrapUndefinable(
-                node.initializer,
-              ) as ts.CallExpression;
-              const arg = callNode.arguments[0];
-              return ts.isStringLiteral(arg) && arg.text.endsWith('.css');
-            },
-          );
-
-          andThenForUndefinable(
-            specifier,
-            (s): void => void cssModuleSpecifiers.push(s),
-          );
-        }
-
-        {
-          const specifier = extractSpecifierFromRequire(
-            declNode,
-            (node): boolean => {
-              const callNode = unwrapUndefinable(
-                node.initializer,
-              ) as ts.CallExpression;
-              const arg = callNode.arguments[0];
-              return ts.isStringLiteral(arg) && arg.text === 'classnames';
-            },
-          );
-
-          andThenForUndefinable(
-            specifier,
-            (s): void => void classNamesSpecifiers.push(s),
-          );
-        }
-
-        break;
-      }
-
-      case ts.SyntaxKind.CallExpression: {
-        const callNode = node as ts.CallExpression;
-        if (!ts.isIdentifier(callNode.expression)) {
-          break;
-        }
-
-        const funcName = extractTextFromIdentifier(callNode.expression);
-
-        if (classNamesSpecifiers.includes(funcName)) {
-          const args = extractArgumentsFromClassnamesCall(callNode);
-          const classNames = args.map((className): string => `.${className}`);
-
-          classes.push(...classNames);
-        }
-
-        break;
-      }
-
-      case ts.SyntaxKind.PropertyAccessExpression: {
-        const exprNode = node as ts.PropertyAccessExpression;
-
-        if (
-          cssModuleSpecifiers.includes(
-            extractTextFromIdentifier(exprNode.expression as ts.Identifier),
-          )
-        ) {
-          const className = extractTextFromIdentifier(exprNode.name);
-          classes.push(`.${className}`);
-        }
-
-        break;
-      }
-
-      case ts.SyntaxKind.ElementAccessExpression: {
-        const exprNode = node as ts.ElementAccessExpression;
-
-        if (
-          cssModuleSpecifiers.includes(
-            extractTextFromIdentifier(exprNode.expression as ts.Identifier),
-          )
-        ) {
-          const className = (exprNode.argumentExpression as ts.StringLiteral)
-            .text;
-          classes.push(`.${className}`);
-        }
-
-        break;
-      }
-
       case ts.SyntaxKind.JsxAttribute:
         {
           const attrNode = node as ts.JsxAttribute;
@@ -290,6 +163,158 @@ function extractClassesAndIds(
 
         break;
     }
+  }
+
+  function handleCSSModules(node: ts.Node): void {
+    switch (node.kind) {
+      case ts.SyntaxKind.ImportDeclaration: {
+        const declNode = node as ts.ImportDeclaration;
+        const specifiers = extractSpecifiersFromImport(
+          declNode,
+          (node): boolean => {
+            return (node.moduleSpecifier as ts.StringLiteral).text.endsWith(
+              '.css',
+            );
+          },
+        );
+
+        cssModuleSpecifiers.push(...specifiers);
+
+        break;
+      }
+
+      case ts.SyntaxKind.VariableDeclaration: {
+        const declNode = node as ts.VariableDeclaration;
+
+        if (!isRequireCall(declNode)) {
+          break;
+        }
+
+        const specifier = extractSpecifierFromRequire(
+          declNode,
+          (node): boolean => {
+            const callNode = unwrapUndefinable(
+              node.initializer,
+            ) as ts.CallExpression;
+            const arg = callNode.arguments[0];
+            return ts.isStringLiteral(arg) && arg.text.endsWith('.css');
+          },
+        );
+
+        andThenForUndefinable(
+          specifier,
+          (s): void => void cssModuleSpecifiers.push(s),
+        );
+
+        break;
+      }
+
+      case ts.SyntaxKind.PropertyAccessExpression: {
+        const exprNode = node as ts.PropertyAccessExpression;
+        const objName = extractTextFromIdentifier(
+          exprNode.expression as ts.Identifier,
+        );
+
+        if (!cssModuleSpecifiers.includes(objName)) {
+          break;
+        }
+
+        const className = extractTextFromIdentifier(exprNode.name);
+        classes.push(`.${className}`);
+
+        break;
+      }
+
+      case ts.SyntaxKind.ElementAccessExpression: {
+        const exprNode = node as ts.ElementAccessExpression;
+        const objName = extractTextFromIdentifier(
+          exprNode.expression as ts.Identifier,
+        );
+
+        if (!cssModuleSpecifiers.includes(objName)) {
+          break;
+        }
+
+        const className = (exprNode.argumentExpression as ts.StringLiteral)
+          .text;
+        classes.push(`.${className}`);
+
+        break;
+      }
+    }
+  }
+
+  function handleClassNames(node: ts.Node): void {
+    switch (node.kind) {
+      case ts.SyntaxKind.ImportDeclaration: {
+        const declNode = node as ts.ImportDeclaration;
+
+        const specifiers = extractSpecifiersFromImport(
+          declNode,
+          (node): boolean => {
+            return (
+              (node.moduleSpecifier as ts.StringLiteral).text === 'classnames'
+            );
+          },
+        );
+
+        classNamesSpecifiers.push(...specifiers);
+
+        break;
+      }
+
+      case ts.SyntaxKind.VariableDeclaration: {
+        const declNode = node as ts.VariableDeclaration;
+
+        if (!isRequireCall(declNode)) {
+          break;
+        }
+
+        const specifier = extractSpecifierFromRequire(
+          declNode,
+          (node): boolean => {
+            const callNode = unwrapUndefinable(
+              node.initializer,
+            ) as ts.CallExpression;
+            const arg = callNode.arguments[0];
+            return ts.isStringLiteral(arg) && arg.text === 'classnames';
+          },
+        );
+
+        andThenForUndefinable(
+          specifier,
+          (s): void => void classNamesSpecifiers.push(s),
+        );
+
+        break;
+      }
+
+      case ts.SyntaxKind.CallExpression: {
+        const callNode = node as ts.CallExpression;
+        if (!ts.isIdentifier(callNode.expression)) {
+          break;
+        }
+
+        const funcName = extractTextFromIdentifier(callNode.expression);
+
+        if (!classNamesSpecifiers.includes(funcName)) {
+          break;
+        }
+
+        const args = extractArgumentsFromClassnamesCall(callNode);
+        const classNames = args.map((className): string => `.${className}`);
+
+        classes.push(...classNames);
+
+        break;
+      }
+    }
+  }
+
+  function visitor(node: ts.Node): void {
+    handleClassNameAndIdAttributes(node);
+    handleCSSModules(node);
+    handleClassNames(node);
 
     ts.forEachChild(node, visitor);
   }
