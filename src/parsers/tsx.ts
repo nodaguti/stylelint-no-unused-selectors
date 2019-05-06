@@ -85,7 +85,7 @@ function extractSpecifierFromRequire(
 }
 
 function extractArgumentsFromClassnamesCall(node: ts.CallExpression): string[] {
-  let classes: string[] = [];
+  const classes: string[] = [];
 
   node.arguments.forEach(
     (arg): void => {
@@ -99,20 +99,18 @@ function extractArgumentsFromClassnamesCall(node: ts.CallExpression): string[] {
         }
 
         case ts.SyntaxKind.ObjectLiteralExpression: {
-          classes = classes.concat(
-            (arg as ts.ObjectLiteralExpression).properties
-              .filter(
-                (prop): boolean =>
-                  ts.isPropertyAssignment(prop) &&
-                  ts.isStringLiteral(prop.name),
-              )
-              .map(
-                (prop): string =>
-                  ((prop as ts.PropertyAssignment).name as ts.StringLiteral)
-                    .text,
-              )
-              .filter((key): boolean => !!key),
+          const stringProps = (arg as ts.ObjectLiteralExpression).properties.filter(
+            (prop): boolean =>
+              ts.isPropertyAssignment(prop) && ts.isStringLiteral(prop.name),
           );
+          const keys = stringProps
+            .map(
+              (prop): string =>
+                ((prop as ts.PropertyAssignment).name as ts.StringLiteral).text,
+            )
+            .filter((key): boolean => !!key);
+
+          classes.push(...keys);
           break;
         }
       }
@@ -125,37 +123,41 @@ function extractArgumentsFromClassnamesCall(node: ts.CallExpression): string[] {
 function extractClassesAndIds(
   sourceFile: ts.SourceFile,
 ): { classes: string[]; ids: string[] } {
-  let cssModuleSpecifiers: string[] = [];
-  let classNamesSpecifiers: string[] = [];
-  let classes: string[] = [];
-  let ids: string[] = [];
+  const cssModuleSpecifiers: string[] = [];
+  const classNamesSpecifiers: string[] = [];
+  const classes: string[] = [];
+  const ids: string[] = [];
 
   function visitor(node: ts.Node): void {
     switch (node.kind) {
       case ts.SyntaxKind.ImportDeclaration: {
         const declNode = node as ts.ImportDeclaration;
 
-        cssModuleSpecifiers = cssModuleSpecifiers.concat(
-          extractSpecifiersFromImport(
+        {
+          const specifiers = extractSpecifiersFromImport(
             declNode,
             (node): boolean => {
               return (node.moduleSpecifier as ts.StringLiteral).text.endsWith(
                 '.css',
               );
             },
-          ),
-        );
+          );
 
-        classNamesSpecifiers = classNamesSpecifiers.concat(
-          extractSpecifiersFromImport(
+          cssModuleSpecifiers.push(...specifiers);
+        }
+
+        {
+          const specifiers = extractSpecifiersFromImport(
             declNode,
             (node): boolean => {
               return (
                 (node.moduleSpecifier as ts.StringLiteral).text === 'classnames'
               );
             },
-          ),
-        );
+          );
+
+          classNamesSpecifiers.push(...specifiers);
+        }
 
         break;
       }
@@ -167,8 +169,8 @@ function extractClassesAndIds(
           break;
         }
 
-        andThenForUndefinable(
-          extractSpecifierFromRequire(
+        {
+          const specifier = extractSpecifierFromRequire(
             declNode,
             (node): boolean => {
               const callNode = unwrapUndefinable(
@@ -177,14 +179,16 @@ function extractClassesAndIds(
               const arg = callNode.arguments[0];
               return ts.isStringLiteral(arg) && arg.text.endsWith('.css');
             },
-          ),
-          (specifier): void => {
-            cssModuleSpecifiers.push(specifier);
-          },
-        );
+          );
 
-        andThenForUndefinable(
-          extractSpecifierFromRequire(
+          andThenForUndefinable(
+            specifier,
+            (s): void => void cssModuleSpecifiers.push(s),
+          );
+        }
+
+        {
+          const specifier = extractSpecifierFromRequire(
             declNode,
             (node): boolean => {
               const callNode = unwrapUndefinable(
@@ -193,11 +197,13 @@ function extractClassesAndIds(
               const arg = callNode.arguments[0];
               return ts.isStringLiteral(arg) && arg.text === 'classnames';
             },
-          ),
-          (specifier): void => {
-            classNamesSpecifiers.push(specifier);
-          },
-        );
+          );
+
+          andThenForUndefinable(
+            specifier,
+            (s): void => void classNamesSpecifiers.push(s),
+          );
+        }
 
         break;
       }
@@ -211,11 +217,10 @@ function extractClassesAndIds(
         const funcName = extractTextFromIdentifier(callNode.expression);
 
         if (classNamesSpecifiers.includes(funcName)) {
-          classes = classes.concat(
-            extractArgumentsFromClassnamesCall(callNode).map(
-              (className): string => `.${className}`,
-            ),
-          );
+          const args = extractArgumentsFromClassnamesCall(callNode);
+          const classNames = args.map((className): string => `.${className}`);
+
+          classes.push(...classNames);
         }
 
         break;
@@ -260,12 +265,12 @@ function extractClassesAndIds(
             const classNames = extractAttributeValue(attrNode);
 
             if (classNames) {
-              classes = classes.concat(
-                classNames
-                  .split(' ')
-                  .filter((c): boolean => !!c)
-                  .map((c): string => `.${c}`),
-              );
+              const normalisedClassNames = classNames
+                .split(' ')
+                .filter((c): boolean => !!c)
+                .map((c): string => `.${c}`);
+
+              classes.push(...normalisedClassNames);
             }
           }
 
@@ -273,12 +278,12 @@ function extractClassesAndIds(
             const idNames = extractAttributeValue(attrNode);
 
             if (idNames) {
-              ids = ids.concat(
-                idNames
-                  .split(' ')
-                  .filter((i): boolean => !!i)
-                  .map((i): string => `#${i}`),
-              );
+              const normalisedIdNames = idNames
+                .split(' ')
+                .filter((i): boolean => !!i)
+                .map((i): string => `#${i}`);
+
+              ids.push(...normalisedIdNames);
             }
           }
         }

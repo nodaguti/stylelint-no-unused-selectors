@@ -78,7 +78,7 @@ function extractSpecifierFromRequire(
 }
 
 function extractArgumentsFromClassnamesCall(node: CallExpression): string[] {
-  let classes: string[] = [];
+  const classes: string[] = [];
 
   node.arguments.forEach(
     (arg): void => {
@@ -93,12 +93,12 @@ function extractArgumentsFromClassnamesCall(node: CallExpression): string[] {
         }
 
         case 'ObjectExpression': {
-          classes = classes.concat(
-            arg.properties
-              // @ts-ignore
-              .map((prop): string => prop.key.value)
-              .filter((key): boolean => !!key),
-          );
+          const keys = arg.properties
+            // @ts-ignore
+            .map((prop): string => prop.key.value)
+            .filter((key): boolean => !!key);
+
+          classes.push(...keys);
           break;
         }
       }
@@ -109,32 +109,36 @@ function extractArgumentsFromClassnamesCall(node: CallExpression): string[] {
 }
 
 function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
-  let cssModuleSpecifiers: string[] = [];
-  let classNamesSpecifiers: string[] = [];
-  let classes: string[] = [];
-  let ids: string[] = [];
+  const cssModuleSpecifiers: string[] = [];
+  const classNamesSpecifiers: string[] = [];
+  const classes: string[] = [];
+  const ids: string[] = [];
 
   walkSimple(
     ast,
     {
       ImportDeclaration(node: ImportDeclaration): void {
-        cssModuleSpecifiers = cssModuleSpecifiers.concat(
-          extractSpecifiersFromImport(
+        {
+          const specifiers = extractSpecifiersFromImport(
             node,
             (node): boolean => {
               return node.source.value.endsWith('.css');
             },
-          ),
-        );
+          );
 
-        classNamesSpecifiers = classNamesSpecifiers.concat(
-          extractSpecifiersFromImport(
+          cssModuleSpecifiers.push(...specifiers);
+        }
+
+        {
+          const specifiers = extractSpecifiersFromImport(
             node,
             (node): boolean => {
               return node.source.value === 'classnames';
             },
-          ),
-        );
+          );
+
+          classNamesSpecifiers.push(...specifiers);
+        }
       },
 
       VariableDeclarator(node: VariableDeclarator): void {
@@ -142,44 +146,47 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
           return;
         }
 
-        andThenForUndefinable(
-          extractSpecifierFromRequire(
+        {
+          const specifier = extractSpecifierFromRequire(
             node,
             (node): boolean => {
               // @ts-ignore
               const source: string = node.init.arguments[0].value;
               return !!source && source.endsWith('.css');
             },
-          ),
-          (specifier): void => {
-            cssModuleSpecifiers.push(specifier);
-          },
-        );
+          );
 
-        andThenForUndefinable(
-          extractSpecifierFromRequire(
+          andThenForUndefinable(
+            specifier,
+            (s): void => void cssModuleSpecifiers.push(s),
+          );
+        }
+
+        {
+          const specifier = extractSpecifierFromRequire(
             node,
             (node): boolean => {
               // @ts-ignore
               const source: string = node.init.arguments[0].value;
               return !!source && source === 'classnames';
             },
-          ),
-          (specifier): void => {
-            classNamesSpecifiers.push(specifier);
-          },
-        );
+          );
+
+          andThenForUndefinable(
+            specifier,
+            (s): void => void classNamesSpecifiers.push(s),
+          );
+        }
       },
 
       CallExpression(node: CallExpression): void {
         const funcName = (node.callee as Identifier).name;
 
         if (classNamesSpecifiers.includes(funcName)) {
-          classes = classes.concat(
-            extractArgumentsFromClassnamesCall(node).map(
-              (className): string => `.${className}`,
-            ),
-          );
+          const args = extractArgumentsFromClassnamesCall(node);
+          const classNames = args.map((className): string => `.${className}`);
+
+          classes.push(...classNames);
         }
       },
 
@@ -195,12 +202,12 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
           const classNames = extractAttributeValue(node);
 
           if (classNames) {
-            classes = classes.concat(
-              classNames
-                .split(' ')
-                .filter((c): boolean => !!c)
-                .map((c): string => `.${c}`),
-            );
+            const normalisedClassNames = classNames
+              .split(' ')
+              .filter((c): boolean => !!c)
+              .map((c): string => `.${c}`);
+
+            classes.push(...normalisedClassNames);
           }
         }
 
@@ -208,12 +215,12 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
           const idNames = extractAttributeValue(node);
 
           if (idNames) {
-            ids = ids.concat(
-              idNames
-                .split(' ')
-                .filter((i): boolean => !!i)
-                .map((i): string => `#${i}`),
-            );
+            const normalisedIdNames = idNames
+              .split(' ')
+              .filter((i): boolean => !!i)
+              .map((i): string => `#${i}`);
+
+            ids.push(...normalisedIdNames);
           }
         }
       },
