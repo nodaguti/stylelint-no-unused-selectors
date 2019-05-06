@@ -3853,10 +3853,10 @@ optimist@^0.6.1:
     minimist "~0.0.1"
     wordwrap "~0.0.2"
 
-option-t@^19.2.0:
-  version "19.2.0"
-  resolved "https://registry.yarnpkg.com/option-t/-/option-t-19.2.0.tgz#4e1ac8488577475140c82ddc0682bf7289c52062"
-  integrity sha512-Z/0pZ9RN6rOC/fZj/6VM6Sfi9b9Ea+IttN70Dosr/3RHTi/+/GkJdw6vWyh3ugeY79siWtTWIM7eBx/2sR5NGA==
+option-t@^19.2.1:
+  version "19.2.1"
+  resolved "https://registry.yarnpkg.com/option-t/-/option-t-19.2.1.tgz#fae668876d04d6c96d4237f389fbf2afb2138529"
+  integrity sha512-uvXds9kFsm2UfSg13+FncFJKeRhQI4tftJ/ZgaQbeoxVIYbo1V5LnG7x6q/vjqRLo2YSUFdnjJUayqO2Sad+zw==
 
 optionator@^0.8.1, optionator@^0.8.2:
   version "0.8.2"

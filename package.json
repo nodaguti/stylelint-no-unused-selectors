@@ -39,7 +39,7 @@
     "array.prototype.flatmap": "^1.2.1",
     "flow-remove-types": "^1.2.3",
     "jsdom": "^15.0.0",
-    "option-t": "^19.2.0",
+    "option-t": "^19.2.1",
     "postcss-resolve-nested-selector": "^0.1.1",
     "postcss-selector-parser": "^6.0.2",
     "string-template": "^1.0.0"
