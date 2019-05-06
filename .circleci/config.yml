@@ -23,56 +23,52 @@ commands:
   cmd_restore_cache:
     steps:
       - restore_cache:
-        keys:
-          - v1-dep-{{ arch }}-{{ checksum "yarn.lock" }}
+          keys:
+            - v1-dep-{{ arch }}-{{ checksum "yarn.lock" }}
 
   cmd_save_cache:
     steps:
       - save_cache:
-        key: v1-dep-{{ arch }}-{{ checksum "yarn.lock" }}-{{ epoch }}
-        paths:
-          - *yarnpkg_cache_dir
+          key: v1-dep-{{ arch }}-{{ checksum "yarn.lock" }}-{{ epoch }}
+          paths:
+            - *yarnpkg_cache_dir
 
   cmd_show_env:
     steps:
       - run:
-        command: |
-          yarn --version
-          yarn cache dir
-          node -v
+          command: |
+            yarn --version
+            yarn cache dir
+            node -v
 
   cmd_install_dependencies:
     steps:
-      - run:
-        command: yarn
+      - run: yarn
 
   cmd_build:
     steps:
-      - run:
-        command: yarn build
+      - run: yarn build
 
   cmd_lint:
     steps:
-      - run:
-        command: yarn lint
+      - run: yarn lint
 
   cmd_test:
     steps:
-      - run:
-        command: yarn test
+      - run: yarn test
 
   cmd_attach_workspace:
     steps:
       - attach_workspace:
-        at: *workspace_root
+          at: *workspace_root
 
   cmd_persist_dependencies_to_workspace:
     steps:
       - persist_to_workspace:
-        root: *workspace_root
-        paths:
-          - *node_modules_dir
-          - *yarnpkg_cache_dir
+          root: *workspace_root
+          paths:
+            - *node_modules_dir
+            - *yarnpkg_cache_dir
 
 jobs:
   dependencies:
@@ -114,27 +110,17 @@ jobs:
       - cmd_build
       - cmd_test
 
-cond_filters_tags_and_branches: &cond_filters_tags_and_branches
-  branches:
-    only: /.*/
-  tags:
-    only: /.*/
-
-workflow_test_job_conf: &workflow_test_job_conf
-  requires:
-    - dependencies
-  filters:
-    <<: *cond_filters_tags_and_branches
-
 workflows:
+  version: 2
   build_and_test:
     jobs:
-      - dependencies:
-        filters:
-          <<: *cond_filters_tags_and_branches
+      - dependencies
       - lint:
-        <<: *workflow_test_job_conf
+          requires:
+            - dependencies
       - test_in_node_lts:
-        <<: *workflow_test_job_conf
+          requires:
+            - dependencies
       - test_in_node_latest:
-        <<: *workflow_test_job_conf
+          requires:
+            - dependencies
