@@ -70,7 +70,7 @@ Object {
   "warnings": Array [
     Object {
       "column": 1,
-      "line": 13,
+      "line": 19,
       "rule": "plugin/no-unused-selectors",
       "severity": "error",
       "text": ".not-found is defined but doesn't match any elements in test.tsx. (plugin/no-unused-selectors)",

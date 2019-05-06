@@ -84,10 +84,49 @@ function extractSpecifierFromRequire(
   return specifier;
 }
 
+function extractArgumentsFromClassnamesCall(node: ts.CallExpression): string[] {
+  let classes: string[] = [];
+
+  node.arguments.forEach(
+    (arg): void => {
+      switch (arg.kind) {
+        case ts.SyntaxKind.StringLiteral: {
+          const className = (arg as ts.StringLiteral).text;
+          if (className) {
+            classes.push(className);
+          }
+          break;
+        }
+
+        case ts.SyntaxKind.ObjectLiteralExpression: {
+          classes = classes.concat(
+            (arg as ts.ObjectLiteralExpression).properties
+              .filter(
+                (prop): boolean =>
+                  ts.isPropertyAssignment(prop) &&
+                  ts.isStringLiteral(prop.name),
+              )
+              .map(
+                (prop): string =>
+                  ((prop as ts.PropertyAssignment).name as ts.StringLiteral)
+                    .text,
+              )
+              .filter((key): boolean => !!key),
+          );
+          break;
+        }
+      }
+    },
+  );
+
+  return classes;
+}
+
 function extractClassesAndIds(
   sourceFile: ts.SourceFile,
 ): { classes: string[]; ids: string[] } {
   let cssModuleSpecifiers: string[] = [];
+  let classNamesSpecifiers: string[] = [];
   let classes: string[] = [];
   let ids: string[] = [];
 
@@ -102,6 +141,17 @@ function extractClassesAndIds(
             (node): boolean => {
               return (node.moduleSpecifier as ts.StringLiteral).text.endsWith(
                 '.css',
+              );
+            },
+          ),
+        );
+
+        classNamesSpecifiers = classNamesSpecifiers.concat(
+          extractSpecifiersFromImport(
+            declNode,
+            (node): boolean => {
+              return (
+                (node.moduleSpecifier as ts.StringLiteral).text === 'classnames'
               );
             },
           ),
@@ -132,6 +182,41 @@ function extractClassesAndIds(
             cssModuleSpecifiers.push(specifier);
           },
         );
+
+        andThenForUndefinable(
+          extractSpecifierFromRequire(
+            declNode,
+            (node): boolean => {
+              const callNode = unwrapUndefinable(
+                node.initializer,
+              ) as ts.CallExpression;
+              const arg = callNode.arguments[0];
+              return ts.isStringLiteral(arg) && arg.text === 'classnames';
+            },
+          ),
+          (specifier): void => {
+            classNamesSpecifiers.push(specifier);
+          },
+        );
+
+        break;
+      }
+
+      case ts.SyntaxKind.CallExpression: {
+        const callNode = node as ts.CallExpression;
+        if (!ts.isIdentifier(callNode.expression)) {
+          break;
+        }
+
+        const funcName = extractTextFromIdentifier(callNode.expression);
+
+        if (classNamesSpecifiers.includes(funcName)) {
+          classes = classes.concat(
+            extractArgumentsFromClassnamesCall(callNode).map(
+              (className): string => `.${className}`,
+            ),
+          );
+        }
 
         break;
       }
