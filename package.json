@@ -47,7 +47,7 @@
     "string-template": "^1.0.0"
   },
   "peerDependencies": {
-    "stylelint": "^9.10.1"
+    "stylelint": "^9.10.1 || ^10.0.0"
   },
   "devDependencies": {
     "@babel/types": "^7.4.4",
@@ -67,7 +67,7 @@
     "prettier": "^1.17.0",
     "react": "^16.8.6",
     "rimraf": "^2.6.3",
-    "stylelint": "^9.10.1",
+    "stylelint": "10.0.1",
     "ts-jest": "^24.0.2",
     "typescript": "^3.4.5"
   }
