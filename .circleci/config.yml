@@ -53,6 +53,10 @@ commands:
     steps:
       - run: yarn lint
 
+  cmd_check_fmt:
+    steps:
+      - run: yarn check_fmt
+
   cmd_test:
     steps:
       - run: yarn test
@@ -90,6 +94,15 @@ jobs:
       - cmd_install_dependencies
       - cmd_lint
 
+  check_fmt:
+    executor: node_latest
+    steps:
+      - checkout
+      - cmd_attach_workspace
+      - cmd_show_env
+      - cmd_install_dependencies
+      - cmd_check_fmt
+
   test_in_node_lts:
     executor: node_lts
     steps:
@@ -116,6 +129,9 @@ workflows:
     jobs:
       - dependencies
       - lint:
+          requires:
+            - dependencies
+      - check_fmt:
           requires:
             - dependencies
       - test_in_node_lts:
