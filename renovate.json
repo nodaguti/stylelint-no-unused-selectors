@@ -1,6 +1,5 @@
 {
   "extends": ["config:base"],
-  "rangeStrategy": "bump",
   "automerge": false,
   "major": {
     "automerge": false
