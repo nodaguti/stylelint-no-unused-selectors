@@ -1,21 +1,9 @@
 import path from 'path';
 import stylelint from 'stylelint';
+import { parseResult } from './__helpers__/parse-result';
 
 const fixturesRoot = path.join(__dirname, '..', '..', 'examples');
 const configFilePath = path.join(fixturesRoot, '.stylelintrc.js');
-
-function parseResult(result: stylelint.LinterResult): unknown {
-  const parsedOutputs = JSON.parse(result.output);
-
-  if (parsedOutputs.length > 1) {
-    throw Error('More than one result received');
-  }
-
-  const output = parsedOutputs[0];
-  const { source: _, ...filteredOutput } = output;
-
-  return filteredOutput;
-}
 
 test('Disabllow selectors that are not used in a HTML file', async (): Promise<
   void
