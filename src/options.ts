@@ -48,6 +48,10 @@ const defaultOptions: Options = {
     {
       test: '\\.jsx?$',
       plugin: 'stylelint-no-unused-selectors-plugin-jsx',
+      options: {
+        sourceType: 'module',
+        plugins: ['jsx', 'flow'],
+      },
     },
     {
       test: '\\.tsx$',
