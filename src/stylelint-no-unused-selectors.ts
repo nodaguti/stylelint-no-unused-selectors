@@ -34,17 +34,24 @@ function getCSSSource(root: Root): Undefinable<string> {
 }
 
 function rule(
-  _enabled: boolean,
-  options?: DeepPartial<Options>,
+  options?: DeepPartial<Options> | boolean,
 ): (root: Root, result: Result) => Promise<void> {
   return async (root, result): Promise<void> => {
+    if (options === false) {
+      return;
+    }
+
     const cssSrc = getCSSSource(root);
 
     if (!cssSrc) {
       return;
     }
 
-    const opts = normaliseOptions(result, ruleName, options);
+    const opts = normaliseOptions(
+      result,
+      ruleName,
+      typeof options === 'object' ? options : {},
+    );
 
     if (!opts) {
       return;
@@ -102,7 +109,5 @@ function rule(
     );
   };
 }
-
-rule.primaryOptionArray = true;
 
 export default stylelint.createPlugin(ruleName, rule);
