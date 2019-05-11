@@ -1,43 +1,29 @@
-import { Parser as AcornParser, Node } from 'acorn';
-// @ts-ignore
-import acornJSX from 'acorn-jsx';
-// @ts-ignore
-import { full as walkFull } from 'acorn-walk';
-// FIXME: There are lots of @ts-ignore's in this file due to the differences between
-// AST of babylon (@babel/types) and that of acorn.
+import * as BabelParser from '@babel/parser';
+import traverse from '@babel/traverse';
 import {
+  File,
+  Node,
   JSXAttribute,
   ImportDeclaration,
-  MemberExpression,
   VariableDeclarator,
   CallExpression,
   Identifier,
+  ObjectProperty,
   StringLiteral,
 } from '@babel/types';
 import { Undefinable } from 'option-t/lib/Undefinable';
 import { andThenForUndefinable } from 'option-t/lib/Undefinable/andThen';
 import PostcssSelectorParser from 'postcss-selector-parser';
-// @ts-ignore
-import removeFlowTypes from 'flow-remove-types';
 
-import { jsxWalker } from './acorn-jsx-walker';
 import { isSimpleSelector } from '../../utils/is-simple-selector';
-
-const acornOptions = {
-  sourceType: 'module' as const,
-};
-
-const JSXAcornParser = AcornParser.extend(acornJSX());
 
 function extractAttributeValue(node: JSXAttribute): Undefinable<string> {
   const valueNode = node.value;
 
-  // @ts-ignore
-  if (valueNode.type !== 'Literal') {
+  if (!valueNode || valueNode.type !== 'StringLiteral') {
     return;
   }
 
-  // @ts-ignore
   return valueNode.value;
 }
 
@@ -57,10 +43,7 @@ function isRequireCall(node: VariableDeclarator): boolean {
     return false;
   }
 
-  const callExpr = node.init as CallExpression;
-
-  // @ts-ignore
-  const funcName: string = callExpr.callee.name;
+  const funcName = (node.init.callee as Identifier).name;
   return funcName === 'require';
 }
 
@@ -72,8 +55,7 @@ function extractSpecifierFromRequire(
     return undefined;
   }
 
-  // @ts-ignore
-  return node.id.name;
+  return (node.id as Identifier).name;
 }
 
 function extractArgumentsFromClassnamesCall(node: CallExpression): string[] {
@@ -82,9 +64,8 @@ function extractArgumentsFromClassnamesCall(node: CallExpression): string[] {
   node.arguments.forEach(
     (arg): void => {
       switch (arg.type) {
-        // @ts-ignore
-        case 'Literal': {
-          const className = (arg as StringLiteral).value;
+        case 'StringLiteral': {
+          const className = arg.value;
           if (className) {
             classes.push(className);
           }
@@ -93,8 +74,8 @@ function extractArgumentsFromClassnamesCall(node: CallExpression): string[] {
 
         case 'ObjectExpression': {
           const keys = arg.properties
-            // @ts-ignore
-            .map((prop): string => prop.key.value)
+            .filter((prop): boolean => prop.type === 'ObjectProperty')
+            .map((prop): string => (prop as ObjectProperty).key.value)
             .filter((key): boolean => !!key);
 
           classes.push(...keys);
@@ -107,7 +88,7 @@ function extractArgumentsFromClassnamesCall(node: CallExpression): string[] {
   return classes;
 }
 
-function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
+function extractClassesAndIds(ast: File): { classes: string[]; ids: string[] } {
   const cssModuleSpecifiers: string[] = [];
   const classNamesSpecifiers: string[] = [];
   const classes: string[] = [];
@@ -116,11 +97,8 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
   function handleClassNameAndIdAttributes(node: Node): void {
     switch (node.type) {
       case 'JSXAttribute': {
-        // @ts-ignore
-        const attrNode = node as JSXAttribute;
-
-        if (attrNode.name.name === 'className') {
-          const classNames = extractAttributeValue(attrNode);
+        if (node.name.name === 'className') {
+          const classNames = extractAttributeValue(node);
 
           if (classNames) {
             const normalisedClassNames = classNames
@@ -132,8 +110,8 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
           }
         }
 
-        if (attrNode.name.name === 'id') {
-          const idNames = extractAttributeValue(attrNode);
+        if (node.name.name === 'id') {
+          const idNames = extractAttributeValue(node);
 
           if (idNames) {
             const normalisedIdNames = idNames
@@ -153,10 +131,8 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
   function handleCSSModules(node: Node): void {
     switch (node.type) {
       case 'ImportDeclaration': {
-        // @ts-ignore
-        const declNode = node as ImportDeclaration;
         const specifiers = extractSpecifiersFromImport(
-          declNode,
+          node,
           (node): boolean => {
             return node.source.value.endsWith('.css');
           },
@@ -168,18 +144,15 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
       }
 
       case 'VariableDeclarator': {
-        // @ts-ignore
-        const declNode = node as VariableDeclarator;
-
-        if (!isRequireCall(declNode)) {
+        if (!isRequireCall(node)) {
           return;
         }
 
         const specifier = extractSpecifierFromRequire(
-          declNode,
-          (node): boolean => {
-            // @ts-ignore
-            const source: string = node.init.arguments[0].value;
+          node,
+          (n): boolean => {
+            const source = ((n.init as CallExpression)
+              .arguments[0] as StringLiteral).value;
             return !!source && source.endsWith('.css');
           },
         );
@@ -193,16 +166,13 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
       }
 
       case 'MemberExpression': {
-        // @ts-ignore
-        const exprNode = node as MemberExpression;
-        // @ts-ignore
-        const objName: string = exprNode.object.name;
+        const objName = (node.object as Identifier).name;
 
         if (!cssModuleSpecifiers.includes(objName)) {
           break;
         }
 
-        const className = exprNode.property.value || exprNode.property.name;
+        const className = node.property.value || node.property.name;
         classes.push(`.${className}`);
 
         break;
@@ -213,7 +183,6 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
   function handleClassNames(node: Node): void {
     switch (node.type) {
       case 'ImportDeclaration': {
-        // @ts-ignore
         const declNode = node as ImportDeclaration;
         const specifiers = extractSpecifiersFromImport(
           declNode,
@@ -228,18 +197,15 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
       }
 
       case 'VariableDeclarator': {
-        // @ts-ignore
-        const declNode = node as VariableDeclarator;
-
-        if (!isRequireCall(declNode)) {
+        if (!isRequireCall(node)) {
           return;
         }
 
         const specifier = extractSpecifierFromRequire(
-          declNode,
-          (node): boolean => {
-            // @ts-ignore
-            const source: string = node.init.arguments[0].value;
+          node,
+          (n): boolean => {
+            const source = ((n.init as CallExpression)
+              .arguments[0] as StringLiteral).value;
             return !!source && source === 'classnames';
           },
         );
@@ -253,15 +219,13 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
       }
 
       case 'CallExpression': {
-        // @ts-ignore
-        const callNode = node as CallExpression;
-        const funcName = (callNode.callee as Identifier).name;
+        const funcName = (node.callee as Identifier).name;
 
         if (!classNamesSpecifiers.includes(funcName)) {
           break;
         }
 
-        const args = extractArgumentsFromClassnamesCall(callNode);
+        const args = extractArgumentsFromClassnamesCall(node);
         const classNames = args.map((className): string => `.${className}`);
 
         classes.push(...classNames);
@@ -269,19 +233,20 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
     }
   }
 
-  function visitor(node: Node): void {
-    handleClassNameAndIdAttributes(node);
-    handleCSSModules(node);
-    handleClassNames(node);
-  }
-
-  walkFull(ast, visitor, jsxWalker);
+  traverse(ast, {
+    enter(path): void {
+      const { node } = path;
+      handleClassNameAndIdAttributes(node);
+      handleCSSModules(node);
+      handleClassNames(node);
+    },
+  });
 
   return { classes, ids };
 }
 
 let cache: {
-  ast: Undefinable<Node>;
+  ast: Undefinable<File>;
   classes: string[];
   ids: string[];
 } = {
@@ -290,9 +255,11 @@ let cache: {
   ids: [],
 };
 
-export function parse(jsx: string): void {
-  const jsxWithoutFlow = removeFlowTypes(jsx);
-  const ast = JSXAcornParser.parse(jsxWithoutFlow, acornOptions);
+export function parse(jsx: string, parserOptions: unknown): void {
+  const ast = BabelParser.parse(
+    jsx,
+    parserOptions as BabelParser.ParserOptions,
+  );
   const { classes, ids } = extractClassesAndIds(ast);
 
   cache.ast = ast;
