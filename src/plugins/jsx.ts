@@ -20,7 +20,7 @@ import PostcssSelectorParser from 'postcss-selector-parser';
 // @ts-ignore
 import removeFlowTypes from 'flow-remove-types';
 
-import { Parser } from '../parser';
+import { Plugin } from '../plugin';
 import { jsxWalker } from '../utils/acorn-jsx-walker';
 import { isSimpleSelector } from '../utils/is-simple-selector';
 
@@ -281,7 +281,7 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
   return { classes, ids };
 }
 
-export class JSXParser implements Parser {
+export class JSXPlugin implements Plugin {
   private _ast: Undefinable<Node>;
   private _classes: string[];
   private _ids: string[];
