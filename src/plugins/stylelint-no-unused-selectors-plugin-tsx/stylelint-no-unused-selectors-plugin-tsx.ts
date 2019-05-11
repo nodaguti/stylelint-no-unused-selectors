@@ -4,8 +4,8 @@ import { unwrapUndefinable } from 'option-t/lib/Undefinable/unwrap';
 import { andThenForUndefinable } from 'option-t/lib/Undefinable/andThen';
 import PostcssSelectorParser from 'postcss-selector-parser';
 
-import { Plugin } from '../plugin';
-import { isSimpleSelector } from '../utils/is-simple-selector';
+import { Plugin } from '../../plugin';
+import { isSimpleSelector } from '../../utils/is-simple-selector';
 
 function extractAttributeValue(node: ts.JsxAttribute): Undefinable<string> {
   if (

@@ -20,9 +20,9 @@ import PostcssSelectorParser from 'postcss-selector-parser';
 // @ts-ignore
 import removeFlowTypes from 'flow-remove-types';
 
-import { Plugin } from '../plugin';
-import { jsxWalker } from '../utils/acorn-jsx-walker';
-import { isSimpleSelector } from '../utils/is-simple-selector';
+import { Plugin } from '../../plugin';
+import { jsxWalker } from './acorn-jsx-walker';
+import { isSimpleSelector } from '../../utils/is-simple-selector';
 
 const acornOptions = {
   sourceType: 'module' as const,

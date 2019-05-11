@@ -2,9 +2,9 @@ import path from 'path';
 import { Undefinable } from 'option-t/lib/Undefinable';
 import PostcssSelectorParser from 'postcss-selector-parser';
 
-import { HTMLPlugin } from './plugins/html';
-import { JSXPlugin } from './plugins/jsx';
-import { TSXPlugin } from './plugins/tsx';
+import { HTMLPlugin } from './plugins/stylelint-no-unused-selectors-plugin-html';
+import { JSXPlugin } from './plugins/stylelint-no-unused-selectors-plugin-jsx';
+import { TSXPlugin } from './plugins/stylelint-no-unused-selectors-plugin-tsx';
 
 export interface Plugin {
   parse(document: string): void | Promise<void>;

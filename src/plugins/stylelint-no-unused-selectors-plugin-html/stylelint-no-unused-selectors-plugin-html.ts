@@ -2,7 +2,7 @@ import { JSDOM } from 'jsdom';
 import { Undefinable } from 'option-t/lib/Undefinable';
 import PostcssSelectorParser from 'postcss-selector-parser';
 
-import { Plugin } from '../plugin';
+import { Plugin } from '../../plugin';
 
 export class HTMLPlugin implements Plugin {
   private _dom: Undefinable<JSDOM>;
