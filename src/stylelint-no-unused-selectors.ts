@@ -11,6 +11,7 @@ import { Root, Result } from 'postcss';
 import resolveNestedSelector from 'postcss-resolve-nested-selector';
 import createSelectorProcessor from 'postcss-selector-parser';
 
+import { Options, normaliseOptions } from './options';
 import { getPlugin } from './plugin';
 
 import { DeepPartial } from './types/deep-partial';
@@ -32,51 +33,6 @@ function getCSSSource(root: Root): Undefinable<string> {
   );
 }
 
-interface Options {
-  resolve: {
-    documents: string[];
-  };
-}
-
-const optionsSchema = {
-  resolve: {
-    documents: [(a: unknown): boolean => typeof a === 'string'],
-  },
-};
-
-const defaultOptions = {
-  resolve: {
-    documents: [
-      '{cssDir}/{cssName}.tsx',
-      '{cssDir}/{cssName}.jsx',
-      '{cssDir}/{cssName}.html',
-      '{cssDir}/{cssName}.htm',
-      '{cssDir}/index.tsx',
-      '{cssDir}/index.jsx',
-      '{cssDir}/index.html',
-      '{cssDir}/index.htm',
-    ],
-  },
-};
-
-function normaliseOptions(
-  result: Result,
-  options: Undefinable<DeepPartial<Options>>,
-): Undefinable<Options> {
-  const areOptionsValid = stylelint.utils.validateOptions(result, ruleName, {
-    actual: options,
-    possible: optionsSchema,
-    optional: true,
-  });
-
-  if (!areOptionsValid) {
-    return;
-  }
-
-  const mergedOpts = Object.assign(defaultOptions, options);
-  return mergedOpts;
-}
-
 function rule(
   _enabled: boolean,
   options?: DeepPartial<Options>,
@@ -88,7 +44,7 @@ function rule(
       return;
     }
 
-    const opts = normaliseOptions(result, options);
+    const opts = normaliseOptions(result, ruleName, options);
 
     if (!opts) {
       return;
