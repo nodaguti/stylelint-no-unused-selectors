@@ -324,7 +324,7 @@ function extractClassesAndIds(
   return { classes, ids };
 }
 
-export class TSXPlugin implements Plugin {
+export default class TSXPlugin implements Plugin {
   private _ast: Undefinable<ts.SourceFile>;
   private _classes: string[];
   private _ids: string[];

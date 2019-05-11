@@ -4,7 +4,7 @@ import PostcssSelectorParser from 'postcss-selector-parser';
 
 import { Plugin } from '../../plugin';
 
-export class HTMLPlugin implements Plugin {
+export default class HTMLPlugin implements Plugin {
   private _dom: Undefinable<JSDOM>;
 
   public constructor() {

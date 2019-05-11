@@ -1,1 +1,1 @@
-export { TSXPlugin } from './stylelint-no-unused-selectors-plugin-tsx';
+export { default } from './stylelint-no-unused-selectors-plugin-tsx';

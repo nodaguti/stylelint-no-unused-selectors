@@ -281,7 +281,7 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
   return { classes, ids };
 }
 
-export class JSXPlugin implements Plugin {
+export default class JSXPlugin implements Plugin {
   private _ast: Undefinable<Node>;
   private _classes: string[];
   private _ids: string[];

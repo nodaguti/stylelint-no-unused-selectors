@@ -1,1 +1,1 @@
-export { HTMLPlugin } from './stylelint-no-unused-selectors-plugin-html';
+export { default } from './stylelint-no-unused-selectors-plugin-html';

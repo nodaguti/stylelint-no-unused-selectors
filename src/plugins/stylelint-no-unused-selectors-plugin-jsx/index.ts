@@ -1,1 +1,1 @@
-export { JSXPlugin } from './stylelint-no-unused-selectors-plugin-jsx';
+export { default } from './stylelint-no-unused-selectors-plugin-jsx';
