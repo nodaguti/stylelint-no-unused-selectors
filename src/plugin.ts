@@ -2,29 +2,29 @@ import path from 'path';
 import { Undefinable } from 'option-t/lib/Undefinable';
 import PostcssSelectorParser from 'postcss-selector-parser';
 
-import { HTMLParser } from './parsers/html';
-import { JSXParser } from './parsers/jsx';
-import { TSXParser } from './parsers/tsx';
+import { HTMLPlugin } from './plugins/html';
+import { JSXPlugin } from './plugins/jsx';
+import { TSXPlugin } from './plugins/tsx';
 
-export interface Parser {
+export interface Plugin {
   parse(document: string): void | Promise<void>;
   match(selectorAst: PostcssSelectorParser.Root): boolean | Promise<boolean>;
 }
 
-export function createParser(docPath: string): Undefinable<Parser> {
+export function getPlugin(docPath: string): Undefinable<Plugin> {
   const ext = path.extname(docPath);
 
   switch (ext) {
     case '.html':
     case '.htm':
-      return new HTMLParser();
+      return new HTMLPlugin();
 
     case '.jsx':
     case '.js':
-      return new JSXParser();
+      return new JSXPlugin();
 
     case '.tsx':
-      return new TSXParser();
+      return new TSXPlugin();
 
     default:
       return undefined;

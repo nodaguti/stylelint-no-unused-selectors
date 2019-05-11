@@ -2,9 +2,9 @@ import { JSDOM } from 'jsdom';
 import { Undefinable } from 'option-t/lib/Undefinable';
 import PostcssSelectorParser from 'postcss-selector-parser';
 
-import { Parser } from '../parser';
+import { Plugin } from '../plugin';
 
-export class HTMLParser implements Parser {
+export class HTMLPlugin implements Plugin {
   private _dom: Undefinable<JSDOM>;
 
   public constructor() {

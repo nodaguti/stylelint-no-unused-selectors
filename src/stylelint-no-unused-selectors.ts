@@ -11,7 +11,7 @@ import { Root, Result } from 'postcss';
 import resolveNestedSelector from 'postcss-resolve-nested-selector';
 import createSelectorProcessor from 'postcss-selector-parser';
 
-import { createParser } from './parser';
+import { getPlugin } from './plugin';
 
 import { DeepPartial } from './types/deep-partial';
 import { resolveDocuments, resolveDocument } from './utils/document-resolver';
@@ -102,13 +102,13 @@ function rule(
     }
 
     const { path: documentPath, document } = resolution;
-    const parser = createParser(documentPath);
+    const plugin = getPlugin(documentPath);
 
-    if (!parser) {
+    if (!plugin) {
       return;
     }
 
-    await parser.parse(document);
+    await plugin.parse(document);
 
     root.walkRules(
       async (rule): Promise<void> => {
@@ -124,7 +124,7 @@ function rule(
         async function processSelector(selector: string): Promise<void> {
           const selectorAst = await selectorProcessor.ast(selector);
           const filteredAst = removeUnassertiveSelector(selectorAst);
-          const matched = await unwrapUndefinable(parser).match(filteredAst);
+          const matched = await unwrapUndefinable(plugin).match(filteredAst);
 
           if (!matched) {
             stylelint.utils.report({
