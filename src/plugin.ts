@@ -10,11 +10,11 @@ export interface Plugin {
 async function importPlugin(pluginName: string): Promise<Undefinable<Plugin>> {
   try {
     const plugin = await import(pluginName);
-    return plugin.default;
+    return plugin;
   } catch {
     try {
       const plugin = await import(path.join(__dirname, 'plugins', pluginName));
-      return plugin.default;
+      return plugin;
     } catch {
       return undefined;
     }
@@ -23,37 +23,31 @@ async function importPlugin(pluginName: string): Promise<Undefinable<Plugin>> {
 
 export async function getPlugin(docPath: string): Promise<Undefinable<Plugin>> {
   const ext = path.extname(docPath);
-  let Plugin: Undefinable<Plugin> = undefined;
+  let pluginName: Undefinable<string> = undefined;
 
   switch (ext) {
     case '.html':
     case '.htm': {
-      const pluginName = 'stylelint-no-unused-selectors-plugin-html';
-      Plugin = await importPlugin(pluginName);
-
+      pluginName = 'stylelint-no-unused-selectors-plugin-html';
       break;
     }
 
     case '.jsx':
     case '.js': {
-      const pluginName = 'stylelint-no-unused-selectors-plugin-jsx';
-      Plugin = await importPlugin(pluginName);
-
+      pluginName = 'stylelint-no-unused-selectors-plugin-jsx';
       break;
     }
 
     case '.tsx': {
-      const pluginName = 'stylelint-no-unused-selectors-plugin-tsx';
-      Plugin = await importPlugin(pluginName);
-
+      pluginName = 'stylelint-no-unused-selectors-plugin-tsx';
       break;
     }
   }
 
-  if (Plugin !== undefined) {
-    // @ts-ignore
-    return new Plugin();
+  if (pluginName === undefined) {
+    return undefined;
   }
 
-  return undefined;
+  const plugin = await importPlugin(pluginName);
+  return plugin;
 }
