@@ -58,13 +58,15 @@ function rule(
     }
 
     const { path: documentPath, document } = resolution;
-    const plugin = await getPlugin(documentPath);
+    const pluginSet = await getPlugin(documentPath, opts.plugins);
 
-    if (!plugin) {
+    if (!pluginSet) {
       return;
     }
 
-    await plugin.parse(document);
+    const { plugin, options: pluginOptions } = pluginSet;
+
+    await plugin.parse(document, pluginOptions);
 
     root.walkRules(
       async (rule): Promise<void> => {
@@ -80,7 +82,10 @@ function rule(
         async function processSelector(selector: string): Promise<void> {
           const selectorAst = await selectorProcessor.ast(selector);
           const filteredAst = removeUnassertiveSelector(selectorAst);
-          const matched = await unwrapUndefinable(plugin).match(filteredAst);
+          const matched = await unwrapUndefinable(plugin).match(
+            filteredAst,
+            pluginOptions,
+          );
 
           if (!matched) {
             stylelint.utils.report({

@@ -4,16 +4,27 @@ import { Result } from 'postcss';
 
 import { DeepPartial } from './types/deep-partial';
 
+export interface PluginSetting {
+  test: string;
+  plugin: string;
+  options?: unknown;
+}
+
 export interface Options {
   resolve: {
     documents: string[];
   };
+  plugins: PluginSetting[];
 }
 
 const optionsSchema = {
   resolve: {
     documents: [(a: unknown): boolean => typeof a === 'string'],
   },
+  plugins: [
+    (p: unknown): boolean =>
+      typeof p === 'object' && p !== null && 'test' in p && 'plugin' in p,
+  ],
 };
 
 const defaultOptions: Options = {
@@ -29,6 +40,20 @@ const defaultOptions: Options = {
       '{cssDir}/index.htm',
     ],
   },
+  plugins: [
+    {
+      test: '\\.html?$',
+      plugin: 'stylelint-no-unused-selectors-plugin-html',
+    },
+    {
+      test: '\\.jsx?$',
+      plugin: 'stylelint-no-unused-selectors-plugin-jsx',
+    },
+    {
+      test: '\\.tsx$',
+      plugin: 'stylelint-no-unused-selectors-plugin-tsx',
+    },
+  ],
 };
 
 export function normaliseOptions(
