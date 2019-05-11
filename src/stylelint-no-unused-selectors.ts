@@ -102,7 +102,7 @@ function rule(
     }
 
     const { path: documentPath, document } = resolution;
-    const plugin = getPlugin(documentPath);
+    const plugin = await getPlugin(documentPath);
 
     if (!plugin) {
       return;

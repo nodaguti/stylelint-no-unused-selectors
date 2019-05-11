@@ -20,9 +20,8 @@ import PostcssSelectorParser from 'postcss-selector-parser';
 // @ts-ignore
 import removeFlowTypes from 'flow-remove-types';
 
-import { Plugin } from '../plugin';
-import { jsxWalker } from '../utils/acorn-jsx-walker';
-import { isSimpleSelector } from '../utils/is-simple-selector';
+import { jsxWalker } from './acorn-jsx-walker';
+import { isSimpleSelector } from '../../utils/is-simple-selector';
 
 const acornOptions = {
   sourceType: 'module' as const,
@@ -281,47 +280,45 @@ function extractClassesAndIds(ast: Node): { classes: string[]; ids: string[] } {
   return { classes, ids };
 }
 
-export class JSXPlugin implements Plugin {
-  private _ast: Undefinable<Node>;
-  private _classes: string[];
-  private _ids: string[];
+let cache: {
+  ast: Undefinable<Node>;
+  classes: string[];
+  ids: string[];
+} = {
+  ast: undefined,
+  classes: [],
+  ids: [],
+};
 
-  public constructor() {
-    this._ast = undefined;
-    this._classes = [];
-    this._ids = [];
+export function parse(jsx: string): void {
+  const jsxWithoutFlow = removeFlowTypes(jsx);
+  const ast = JSXAcornParser.parse(jsxWithoutFlow, acornOptions);
+  const { classes, ids } = extractClassesAndIds(ast);
+
+  cache.ast = ast;
+  cache.classes = classes;
+  cache.ids = ids;
+}
+
+export function match(selectorAst: PostcssSelectorParser.Root): boolean {
+  if (cache.ast === undefined) {
+    throw new Error('Call parse() before match().');
   }
 
-  public parse(jsx: string): void {
-    const jsxWithoutFlow = removeFlowTypes(jsx);
-    const ast = JSXAcornParser.parse(jsxWithoutFlow, acornOptions);
-    const { classes, ids } = extractClassesAndIds(ast);
-
-    this._ast = ast;
-    this._classes = classes;
-    this._ids = ids;
+  // Skip if the given selector is not composed of only one class or id.
+  if (!isSimpleSelector(selectorAst)) {
+    return true;
   }
 
-  public match(selectorAst: PostcssSelectorParser.Root): boolean {
-    if (this._ast === undefined) {
-      throw new Error('Call parse() before match().');
-    }
+  const selector = selectorAst.toString();
 
-    // Skip if the given selector is not composed of only one class or id.
-    if (!isSimpleSelector(selectorAst)) {
-      return true;
-    }
-
-    const selector = selectorAst.toString();
-
-    if (this._classes.includes(selector)) {
-      return true;
-    }
-
-    if (this._ids.includes(selector)) {
-      return true;
-    }
-
-    return false;
+  if (cache.classes.includes(selector)) {
+    return true;
   }
+
+  if (cache.ids.includes(selector)) {
+    return true;
+  }
+
+  return false;
 }

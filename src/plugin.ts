@@ -2,31 +2,52 @@ import path from 'path';
 import { Undefinable } from 'option-t/lib/Undefinable';
 import PostcssSelectorParser from 'postcss-selector-parser';
 
-import { HTMLPlugin } from './plugins/html';
-import { JSXPlugin } from './plugins/jsx';
-import { TSXPlugin } from './plugins/tsx';
-
 export interface Plugin {
   parse(document: string): void | Promise<void>;
   match(selectorAst: PostcssSelectorParser.Root): boolean | Promise<boolean>;
 }
 
-export function getPlugin(docPath: string): Undefinable<Plugin> {
+async function importPlugin(pluginName: string): Promise<Undefinable<Plugin>> {
+  try {
+    const plugin = await import(pluginName);
+    return plugin;
+  } catch {
+    try {
+      const plugin = await import(path.join(__dirname, 'plugins', pluginName));
+      return plugin;
+    } catch {
+      return undefined;
+    }
+  }
+}
+
+export async function getPlugin(docPath: string): Promise<Undefinable<Plugin>> {
   const ext = path.extname(docPath);
+  let pluginName: Undefinable<string> = undefined;
 
   switch (ext) {
     case '.html':
-    case '.htm':
-      return new HTMLPlugin();
+    case '.htm': {
+      pluginName = 'stylelint-no-unused-selectors-plugin-html';
+      break;
+    }
 
     case '.jsx':
-    case '.js':
-      return new JSXPlugin();
+    case '.js': {
+      pluginName = 'stylelint-no-unused-selectors-plugin-jsx';
+      break;
+    }
 
-    case '.tsx':
-      return new TSXPlugin();
-
-    default:
-      return undefined;
+    case '.tsx': {
+      pluginName = 'stylelint-no-unused-selectors-plugin-tsx';
+      break;
+    }
   }
+
+  if (pluginName === undefined) {
+    return undefined;
+  }
+
+  const plugin = await importPlugin(pluginName);
+  return plugin;
 }
