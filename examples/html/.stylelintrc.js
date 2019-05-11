@@ -1,6 +1,6 @@
 // @ts-nocheck
 module.exports = {
-  plugins: ['../dist/stylelint-no-unused-selectors.js'],
+  plugins: ['../../dist/index.js'],
   rules: {
     'plugin/no-unused-selectors': true,
   },

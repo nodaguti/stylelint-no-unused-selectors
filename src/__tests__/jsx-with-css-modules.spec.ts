@@ -2,7 +2,13 @@ import path from 'path';
 import stylelint from 'stylelint';
 import { parseResult } from './__helpers__/parse-result';
 
-const fixturesRoot = path.join(__dirname, '..', '..', 'examples');
+const fixturesRoot = path.join(
+  __dirname,
+  '..',
+  '..',
+  'examples',
+  'jsx-with-css-modules',
+);
 const configFilePath = path.join(fixturesRoot, '.stylelintrc.js');
 
 test('Disabllow selectors that are not used in a JSX file using CSS Modules', async (): Promise<
@@ -10,7 +16,7 @@ test('Disabllow selectors that are not used in a JSX file using CSS Modules', as
 > => {
   const options = {
     configFile: configFilePath,
-    files: path.join(fixturesRoot, 'jsx-with-css-modules', '*.css'),
+    files: path.join(fixturesRoot, '*.css'),
   };
 
   const result = await stylelint.lint(options);
