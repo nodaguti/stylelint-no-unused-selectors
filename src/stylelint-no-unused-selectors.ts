@@ -11,6 +11,7 @@ import { Root, Result } from 'postcss';
 import resolveNestedSelector from 'postcss-resolve-nested-selector';
 import createSelectorProcessor from 'postcss-selector-parser';
 
+import { Options, normaliseOptions } from './options';
 import { getPlugin } from './plugin';
 
 import { DeepPartial } from './types/deep-partial';
@@ -32,51 +33,6 @@ function getCSSSource(root: Root): Undefinable<string> {
   );
 }
 
-interface Options {
-  resolve: {
-    documents: string[];
-  };
-}
-
-const optionsSchema = {
-  resolve: {
-    documents: [(a: unknown): boolean => typeof a === 'string'],
-  },
-};
-
-const defaultOptions = {
-  resolve: {
-    documents: [
-      '{cssDir}/{cssName}.tsx',
-      '{cssDir}/{cssName}.jsx',
-      '{cssDir}/{cssName}.html',
-      '{cssDir}/{cssName}.htm',
-      '{cssDir}/index.tsx',
-      '{cssDir}/index.jsx',
-      '{cssDir}/index.html',
-      '{cssDir}/index.htm',
-    ],
-  },
-};
-
-function normaliseOptions(
-  result: Result,
-  options: Undefinable<DeepPartial<Options>>,
-): Undefinable<Options> {
-  const areOptionsValid = stylelint.utils.validateOptions(result, ruleName, {
-    actual: options,
-    possible: optionsSchema,
-    optional: true,
-  });
-
-  if (!areOptionsValid) {
-    return;
-  }
-
-  const mergedOpts = Object.assign(defaultOptions, options);
-  return mergedOpts;
-}
-
 function rule(
   _enabled: boolean,
   options?: DeepPartial<Options>,
@@ -88,7 +44,7 @@ function rule(
       return;
     }
 
-    const opts = normaliseOptions(result, options);
+    const opts = normaliseOptions(result, ruleName, options);
 
     if (!opts) {
       return;
@@ -102,13 +58,15 @@ function rule(
     }
 
     const { path: documentPath, document } = resolution;
-    const plugin = await getPlugin(documentPath);
+    const pluginSet = await getPlugin(documentPath, opts.plugins);
 
-    if (!plugin) {
+    if (!pluginSet) {
       return;
     }
 
-    await plugin.parse(document);
+    const { plugin, options: pluginOptions } = pluginSet;
+
+    await plugin.parse(document, pluginOptions);
 
     root.walkRules(
       async (rule): Promise<void> => {
@@ -124,7 +82,10 @@ function rule(
         async function processSelector(selector: string): Promise<void> {
           const selectorAst = await selectorProcessor.ast(selector);
           const filteredAst = removeUnassertiveSelector(selectorAst);
-          const matched = await unwrapUndefinable(plugin).match(filteredAst);
+          const matched = await unwrapUndefinable(plugin).match(
+            filteredAst,
+            pluginOptions,
+          );
 
           if (!matched) {
             stylelint.utils.report({

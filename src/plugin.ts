@@ -1,10 +1,14 @@
 import path from 'path';
 import { Undefinable } from 'option-t/lib/Undefinable';
 import PostcssSelectorParser from 'postcss-selector-parser';
+import { PluginSetting } from './options';
 
 export interface Plugin {
-  parse(document: string): void | Promise<void>;
-  match(selectorAst: PostcssSelectorParser.Root): boolean | Promise<boolean>;
+  parse(document: string, pluginOptions?: unknown): void | Promise<void>;
+  match(
+    selectorAst: PostcssSelectorParser.Root,
+    pluginOptions?: unknown,
+  ): boolean | Promise<boolean>;
 }
 
 async function importPlugin(pluginName: string): Promise<Undefinable<Plugin>> {
@@ -21,33 +25,28 @@ async function importPlugin(pluginName: string): Promise<Undefinable<Plugin>> {
   }
 }
 
-export async function getPlugin(docPath: string): Promise<Undefinable<Plugin>> {
-  const ext = path.extname(docPath);
-  let pluginName: Undefinable<string> = undefined;
-
-  switch (ext) {
-    case '.html':
-    case '.htm': {
-      pluginName = 'stylelint-no-unused-selectors-plugin-html';
-      break;
+export async function getPlugin(
+  docPath: string,
+  pluginSettings: PluginSetting[],
+): Promise<
+  Undefinable<{
+    plugin: Plugin;
+    options: unknown;
+  }>
+> {
+  for (const pluginSetting of pluginSettings) {
+    if (!new RegExp(pluginSetting.test).test(docPath)) {
+      continue;
     }
 
-    case '.jsx':
-    case '.js': {
-      pluginName = 'stylelint-no-unused-selectors-plugin-jsx';
-      break;
+    const plugin = await importPlugin(pluginSetting.plugin);
+
+    if (plugin === undefined) {
+      continue;
     }
 
-    case '.tsx': {
-      pluginName = 'stylelint-no-unused-selectors-plugin-tsx';
-      break;
-    }
+    return { plugin, options: pluginSetting.options };
   }
 
-  if (pluginName === undefined) {
-    return undefined;
-  }
-
-  const plugin = await importPlugin(pluginName);
-  return plugin;
+  return undefined;
 }
