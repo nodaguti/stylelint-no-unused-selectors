@@ -1,7 +1,7 @@
 {
   "name": "stylelint-no-unused-selectors",
   "version": "1.0.0",
-  "description": "Disallow unused selectors",
+  "description": "A rule for stylelint to disallow unused selectors",
   "main": "dist/index.js",
   "repository": "https://github.com/nodaguti/stylelint-no-unused-selectors",
   "author": "nodaguti",
@@ -9,14 +9,17 @@
   "engines": {
     "node": ">=8.16.0"
   },
-  "keywords": [],
+  "keywords": [
+    "stylelint-plugin"
+  ],
   "files": [
     "README.md",
     "package.json",
     "dist"
   ],
   "scripts": {
-    "build": "tsc --project ./tsconfig.json --outDir dist",
+    "clean": "rimraf dist",
+    "build": "yarn clean && tsc --project ./tsconfig.json --outDir dist",
     "lint": "tsc --project ./tsconfig.json --noEmit && eslint --cache 'src/**/*.{ts,js}'",
     "fmt": "prettier --write *.{ts,js,json,md} src/**/*.{ts,js,json,md}",
     "check_fmt": "yarn fmt && git diff --exit-code",

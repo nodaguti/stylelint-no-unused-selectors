@@ -1,5 +1,6 @@
 {
   "extends": ["config:base"],
+  "semanticCommits": true,
   "automerge": false,
   "major": {
     "automerge": false

@@ -152,6 +152,10 @@ An optional object that will be passed to a plugin, which can be used as parser'
 
 (To be written)
 
+## License
+
+[The MIT License](https://raw.githubusercontent.com/nodaguti/stylelint-no-unused-selectors/master/LICENSE).
+
 ## Existing Tools
 
 Please note that all the following tools are to remove unused rules, not to lint CSS files.
