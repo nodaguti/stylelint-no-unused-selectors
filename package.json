@@ -9,7 +9,9 @@
   "engines": {
     "node": ">=8.16.0"
   },
-  "keywords": [],
+  "keywords": [
+    "stylelint-plugin"
+  ],
   "files": [
     "README.md",
     "package.json",
