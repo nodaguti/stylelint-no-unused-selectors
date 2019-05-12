@@ -23,7 +23,7 @@ when `stylelint-no-unused-selectors` runs on FooComponent.css, it extracts `clas
 
 If you'd like to jump into code, you can find [our examples in the repository](https://github.com/nodaguti/stylelint-no-unused-selectors/tree/master/examples) that are close to real-world situations.
 
-With the build-in plugins, it supports
+With the built-in plugins, it supports
 
 - HTML via [stylelint-no-unused-selectors-plugin-html](https://github.com/nodaguti/stylelint-no-unused-selectors/tree/master/src/plugins/stylelint-no-unused-selectors-plugin-html)
 - React components written in pure JavaScript, JSX, flow-typed JSX, JSX + future syntaxes in TC39 proposals via [stylelint-no-unused-selectors-plugin-jsx](https://github.com/nodaguti/stylelint-no-unused-selectors/tree/master/src/plugins/stylelint-no-unused-selectors-plugin-jsx)
@@ -31,7 +31,7 @@ With the build-in plugins, it supports
 - [CSS Modules](https://github.com/css-modules/css-modules)
 - Basic usages of [`classnames`](https://github.com/JedWatson/classnames) package
 
-See [build-in plugins' documentations](#build-in-plugins) for more details.
+See [the documentations of built-in plugins](#built-in-plugins) for more details.
 
 ## Installation
 
