@@ -15,6 +15,7 @@ export function resolveDocuments(
     (doc): string =>
       format(doc, {
         cssDir: parsed.dir,
+        cssDirName: path.basename(parsed.dir),
         cssName: parsed.name,
       }),
   );
