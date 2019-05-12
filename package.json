@@ -1,7 +1,7 @@
 {
   "name": "stylelint-no-unused-selectors",
   "version": "1.0.0",
-  "description": "Disallow unused selectors",
+  "description": "A rule for stylelint to disallow unused selectors",
   "main": "dist/index.js",
   "repository": "https://github.com/nodaguti/stylelint-no-unused-selectors",
   "author": "nodaguti",
