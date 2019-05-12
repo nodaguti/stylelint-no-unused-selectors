@@ -16,7 +16,8 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc --project ./tsconfig.json --outDir dist",
+    "clean": "rimraf dist",
+    "build": "yarn clean && tsc --project ./tsconfig.json --outDir dist",
     "lint": "tsc --project ./tsconfig.json --noEmit && eslint --cache 'src/**/*.{ts,js}'",
     "fmt": "prettier --write *.{ts,js,json,md} src/**/*.{ts,js,json,md}",
     "check_fmt": "yarn fmt && git diff --exit-code",
