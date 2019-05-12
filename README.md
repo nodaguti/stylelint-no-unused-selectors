@@ -69,6 +69,10 @@ The default configuration is:
           "{cssDir}/{cssName}.jsx",
           "{cssDir}/{cssName}.html",
           "{cssDir}/{cssName}.htm",
+          "{cssDir}/{cssDirName}.tsx",
+          "{cssDir}/{cssDirName}.jsx",
+          "{cssDir}/{cssDirName}.html",
+          "{cssDir}/{cssDirName}.htm",
           "{cssDir}/index.tsx",
           "{cssDir}/index.jsx",
           "{cssDir}/index.html",
@@ -106,10 +110,11 @@ This field tells the rule how to find a template file from a CSS file. The paths
 
 Available variables are as follows:
 
-| Name        | Description                                       | Example                               |
-| ----------- | ------------------------------------------------- | ------------------------------------- |
-| `{cssDir}`  | The path to a directory that contains a CSS file  | /project_root/components/FooComponent |
-| `{cssName}` | The file name of a CSS file without its extension | FooComponent                          |
+| Name           | Description                                       | Example (/project_root/components/Foo/Bar.css) |
+| -------------- | ------------------------------------------------- | ---------------------------------------------- |
+| `{cssDir}`     | The path to a directory that contains a CSS file  | /project_root/components/Foo                   |
+| `{cssDirName}` | The name of a directory that contains a CSS file  | Foo                                            |
+| `{cssName}`    | The file name of a CSS file without its extension | Bar                                            |
 
 ### plugins
 
