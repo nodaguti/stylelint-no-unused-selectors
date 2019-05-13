@@ -23,7 +23,10 @@
     "lint": "tsc --project ./tsconfig.json --noEmit && eslint --cache 'src/**/*.{ts,js}'",
     "fmt": "prettier --write *.{ts,js,json,md} src/**/*.{ts,js,json,md}",
     "check_fmt": "yarn fmt && git diff --exit-code",
-    "test": "jest"
+    "test": "jest",
+    "publish:patch": "yarn build && npm version patch && git push origin HEAD && git push origin --tags && npm publish --access=public",
+    "publish:minor": "yarn build && npm version minor && git push origin HEAD && git push origin --tags && npm publish --access=public",
+    "publish:major": "yarn build && npm version major && git push origin HEAD && git push origin --tags && npm publish --access=public"
   },
   "husky": {
     "hooks": {
