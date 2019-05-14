@@ -16,15 +16,15 @@
     "dist/**/*"
   ],
   "scripts": {
-    "clean": "rimraf dist",
-    "build": "yarn clean && tsc --project ./tsconfig.json --outDir dist",
+    "clean": "rimraf dist .tsbuildinfo",
+    "build": "tsc --project ./tsconfig.json --outDir dist",
     "lint": "tsc --project ./tsconfig.json --noEmit && eslint --cache 'src/**/*.{ts,js}'",
     "fmt": "prettier --write *.{ts,js,json,md} src/**/*.{ts,js,json,md}",
     "check_fmt": "yarn fmt && git diff --exit-code",
     "test": "jest",
-    "publish:patch": "yarn build && npm version patch && git push origin HEAD && git push origin --tags && npm publish --access=public",
-    "publish:minor": "yarn build && npm version minor && git push origin HEAD && git push origin --tags && npm publish --access=public",
-    "publish:major": "yarn build && npm version major && git push origin HEAD && git push origin --tags && npm publish --access=public"
+    "publish:patch": "yarn clean && yarn build && npm version patch && git push origin HEAD && git push origin --tags && npm publish --access=public",
+    "publish:minor": "yarn clean && yarn build && npm version minor && git push origin HEAD && git push origin --tags && npm publish --access=public",
+    "publish:major": "yarn clean && yarn build && npm version major && git push origin HEAD && git push origin --tags && npm publish --access=public"
   },
   "husky": {
     "hooks": {
