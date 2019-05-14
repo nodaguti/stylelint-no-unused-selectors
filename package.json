@@ -13,9 +13,7 @@
     "stylelint-plugin"
   ],
   "files": [
-    "README.md",
-    "package.json",
-    "dist"
+    "dist/**/*"
   ],
   "scripts": {
     "clean": "rimraf dist",
