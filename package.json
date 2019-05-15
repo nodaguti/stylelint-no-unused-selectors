@@ -40,13 +40,13 @@
   "dependencies": {
     "@babel/parser": "^7.4.4",
     "@babel/traverse": "^7.4.4",
-    "@typescript-eslint/parser": "^1.7.0",
     "array.prototype.flatmap": "^1.2.1",
     "jsdom": "^15.0.0",
     "option-t": "^19.2.1",
     "postcss-resolve-nested-selector": "^0.1.1",
     "postcss-selector-parser": "^6.0.2",
-    "string-template": "^1.0.0"
+    "string-template": "^1.0.0",
+    "typescript": "^3.4.5"
   },
   "peerDependencies": {
     "stylelint": "^9.10.1 || ^10.0.0"
@@ -70,7 +70,6 @@
     "react": "16.8.6",
     "rimraf": "2.6.3",
     "stylelint": "10.0.1",
-    "ts-jest": "24.0.2",
-    "typescript": "3.4.5"
+    "ts-jest": "24.0.2"
   }
 }
