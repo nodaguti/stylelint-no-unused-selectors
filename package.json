@@ -40,7 +40,6 @@
   "dependencies": {
     "@babel/parser": "^7.4.4",
     "@babel/traverse": "^7.4.4",
-    "@typescript-eslint/parser": "^1.7.0",
     "array.prototype.flatmap": "^1.2.1",
     "jsdom": "^15.0.0",
     "option-t": "^19.2.1",
