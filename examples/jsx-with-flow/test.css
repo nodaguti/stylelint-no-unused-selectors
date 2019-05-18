@@ -1,12 +1,12 @@
 /* good */
 .list-item {
-  color: black;
+  color: green;
 }
 
 /* good */
 .list,
 .list-item::before {
-  color: black;
+  color: green;
 }
 
 /* bad */

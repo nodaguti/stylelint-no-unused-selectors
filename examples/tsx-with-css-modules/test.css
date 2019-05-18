@@ -1,22 +1,22 @@
 /* good */
 .list-item {
-  color: black;
+  color: green;
 }
 
 /* good */
 .list-item-2 {
-  color: black;
+  color: green;
 }
 
 /* good */
 .list-link {
-  color: black;
+  color: green;
 }
 
 /* good */
 .list,
 .list-item::before {
-  color: black;
+  color: green;
 }
 
 /* bad */
