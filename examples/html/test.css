@@ -1,31 +1,31 @@
 /* good */
 .list {
-  color: black;
+  color: green;
 }
 
 /* good */
 .list-item {
-  color: black;
+  color: green;
 }
 
 /* good */
 li:nth-of-type(2n) {
-  color: black;
+  color: green;
 }
 
 /* good */
 .list > .list-item:nth-last-of-type(1)::before {
-  color: black;
+  color: green;
 }
 
 /* good (:target, :hover is ignored) */
 .list:target > .list-item:hover {
-  color: black;
+  color: green;
 }
 
 /* bad */
 .not-found {
-  color: black;
+  color: red;
 }
 
 /* bad */

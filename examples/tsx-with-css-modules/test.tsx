@@ -17,18 +17,23 @@ interface Props {
 
 export const Test: React.FunctionComponent<Props> = ({ list }) => {
   return (
-    <ul className={styles.list}>
-      {list.map((item) => (
-        <li
-          className={classNames(styles['list-item'], {
-            [styles['list-item-2']]: item.isNewStyle,
-          })}
-        >
-          <a href={item.href} className={styles2['list-link']}>
-            {item.name}
-          </a>
-        </li>
-      ))}
-    </ul>
+    <>
+      <div className={styles.plain} />
+      <div
+        className={`${styles2['space-separated-1']} ${
+          styles2['space-separated-2']
+        }`}
+      />
+      <ul>
+        {list.map((item) => (
+          <li className={styles['in-array']} />
+        ))}
+      </ul>
+      <div
+        className={classNames(styles.classnames, {
+          [styles['classnames-conditinal']]: true,
+        })}
+      />
+    </>
   );
 };

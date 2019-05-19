@@ -1,12 +1,21 @@
 /* good */
-.list-item {
-  color: black;
+.plain {
+  color: green;
 }
 
 /* good */
-.list,
-.list-item::before {
-  color: black;
+.plain::before {
+  color: green;
+}
+
+/* good */
+.space-separated-1 {
+  color: green;
+}
+
+/* good */
+.in-array {
+  color: green;
 }
 
 /* bad */
@@ -15,16 +24,16 @@
 }
 
 /* ignored */
-.list .list-item {
+.not-found div {
   color: gray;
 }
 
 /* ignored */
-.list-item:last-child {
+.not-found > div {
   color: gray;
 }
 
 /* ignored */
-.not-found:nth-child(2n) {
+.not-found:last-child {
   color: gray;
 }

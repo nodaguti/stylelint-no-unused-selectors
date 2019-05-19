@@ -5,7 +5,6 @@ import classNames from 'classnames';
 interface Item {
   href: string;
   name: string;
-  isNewStyle: boolean;
 }
 
 interface Props {
@@ -14,19 +13,19 @@ interface Props {
 
 export const Test: React.FunctionComponent<Props> = ({ list }) => {
   return (
-    <ul className="list">
-      {list.map((item) => (
-        <li className="list-item list-item-2">
-          <a
-            href={item.href}
-            className={classNames('list-link', {
-              'list-link-new': item.isNewStyle,
-            })}
-          >
-            {item.name}
-          </a>
-        </li>
-      ))}
-    </ul>
+    <>
+      <div className="plain" />
+      <div className="space-separated-1 space-separated-2" />
+      <ul>
+        {list.map((item) => (
+          <li className="in-array" />
+        ))}
+      </ul>
+      <div
+        className={classNames('classnames', {
+          'classnames-conditinal': true,
+        })}
+      />
+    </>
   );
 };
