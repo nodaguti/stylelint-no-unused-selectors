@@ -2,7 +2,7 @@
 import React from 'react';
 
 type Item = {
-  href: String,
+  href: string,
   name: string,
 };
 
@@ -12,14 +12,19 @@ type Props = {
 
 export const Test = ({ list }: Props) => {
   return (
-    <ul className="list">
-      {list.map((item) => (
-        <li className="list-item list-item-2">
-          <a href={item.href} className="list-link">
-            {item.name}
-          </a>
-        </li>
-      ))}
-    </ul>
+    <>
+      <div className="plain" />
+      <div className="space-separated-1 space-separated-2" />
+      <ul>
+        {list.map((item) => (
+          <li className="in-array" />
+        ))}
+      </ul>
+      <div
+        className={classNames('classnames', {
+          'classnames-conditinal': true,
+        })}
+      />
+    </>
   );
 };
