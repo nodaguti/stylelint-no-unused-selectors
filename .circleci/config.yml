@@ -3,12 +3,14 @@ version: 2.1
 workspace_root: &workspace_root ~/workspace
 node_modules_dir: &node_modules_dir node_modules/
 yarnpkg_cache_dir: &yarnpkg_cache_dir ./.cache/yarn
+timezone: &timezone Asia/Tokyo
 
 executors:
   node_lts:
     working_directory: *workspace_root
     environment:
       YARN_CACHE_FOLDER: *yarnpkg_cache_dir
+      TZ: *timezone
     docker:
       - image: circleci/node:8.16.0
 
@@ -16,6 +18,7 @@ executors:
     working_directory: *workspace_root
     environment:
       YARN_CACHE_FOLDER: *yarnpkg_cache_dir
+      TZ: *timezone
     docker:
       - image: circleci/node:11.15.0
 
@@ -60,6 +63,10 @@ commands:
   cmd_test:
     steps:
       - run: yarn test
+
+  cmd_release:
+    steps:
+      - run: npx semantic-release
 
   cmd_attach_workspace:
     steps:
@@ -123,6 +130,15 @@ jobs:
       - cmd_build
       - cmd_test
 
+  release:
+    executor: node_latest
+    steps:
+      - checkout
+      - cmd_attach_workspace
+      - cmd_show_env
+      - cmd_install_dependencies
+      - cmd_release
+
 workflows:
   version: 2
   build_and_test:
@@ -140,3 +156,31 @@ workflows:
       - test_in_node_latest:
           requires:
             - dependencies
+  test_and_release:
+    triggers:
+      - schedule:
+          cron: '0 0 * * 0'
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - dependencies
+      - lint:
+          requires:
+            - dependencies
+      - check_fmt:
+          requires:
+            - dependencies
+      - test_in_node_lts:
+          requires:
+            - dependencies
+      - test_in_node_latest:
+          requires:
+            - dependencies
+      - release:
+          requires:
+            - lint
+            - check_fmt
+            - test_in_node_lts
+            - test_in_node_latest
