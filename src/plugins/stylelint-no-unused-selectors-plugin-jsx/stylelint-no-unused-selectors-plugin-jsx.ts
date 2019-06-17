@@ -61,29 +61,27 @@ function extractSpecifierFromRequire(
 function extractArgumentsFromClassnamesCall(node: CallExpression): string[] {
   const classes: string[] = [];
 
-  node.arguments.forEach(
-    (arg): void => {
-      switch (arg.type) {
-        case 'StringLiteral': {
-          const className = arg.value;
-          if (className) {
-            classes.push(className);
-          }
-          break;
+  node.arguments.forEach((arg): void => {
+    switch (arg.type) {
+      case 'StringLiteral': {
+        const className = arg.value;
+        if (className) {
+          classes.push(className);
         }
-
-        case 'ObjectExpression': {
-          const keys = arg.properties
-            .filter((prop): boolean => prop.type === 'ObjectProperty')
-            .map((prop): string => (prop as ObjectProperty).key.value)
-            .filter((key): boolean => !!key);
-
-          classes.push(...keys);
-          break;
-        }
+        break;
       }
-    },
-  );
+
+      case 'ObjectExpression': {
+        const keys = arg.properties
+          .filter((prop): boolean => prop.type === 'ObjectProperty')
+          .map((prop): string => (prop as ObjectProperty).key.value)
+          .filter((key): boolean => !!key);
+
+        classes.push(...keys);
+        break;
+      }
+    }
+  });
 
   return classes;
 }
@@ -148,14 +146,11 @@ function extractClassesAndIds(ast: File): { classes: string[]; ids: string[] } {
           return;
         }
 
-        const specifier = extractSpecifierFromRequire(
-          node,
-          (n): boolean => {
-            const source = ((n.init as CallExpression)
-              .arguments[0] as StringLiteral).value;
-            return !!source && source.endsWith('.css');
-          },
-        );
+        const specifier = extractSpecifierFromRequire(node, (n): boolean => {
+          const source = ((n.init as CallExpression)
+            .arguments[0] as StringLiteral).value;
+          return !!source && source.endsWith('.css');
+        });
 
         andThenForUndefinable(
           specifier,
@@ -201,14 +196,11 @@ function extractClassesAndIds(ast: File): { classes: string[]; ids: string[] } {
           return;
         }
 
-        const specifier = extractSpecifierFromRequire(
-          node,
-          (n): boolean => {
-            const source = ((n.init as CallExpression)
-              .arguments[0] as StringLiteral).value;
-            return !!source && source === 'classnames';
-          },
-        );
+        const specifier = extractSpecifierFromRequire(node, (n): boolean => {
+          const source = ((n.init as CallExpression)
+            .arguments[0] as StringLiteral).value;
+          return !!source && source === 'classnames';
+        });
 
         andThenForUndefinable(
           specifier,

@@ -20,9 +20,7 @@ export const Test: React.FunctionComponent<Props> = ({ list }) => {
     <>
       <div className={styles.plain} />
       <div
-        className={`${styles2['space-separated-1']} ${
-          styles2['space-separated-2']
-        }`}
+        className={`${styles2['space-separated-1']} ${styles2['space-separated-2']}`}
       />
       <ul>
         {list.map((item) => (

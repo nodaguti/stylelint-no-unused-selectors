@@ -11,13 +11,12 @@ export function resolveDocuments(
   documents: string[],
 ): string[] {
   const parsed = path.parse(cssPath);
-  const resolved = documents.map(
-    (doc): string =>
-      format(doc, {
-        cssDir: parsed.dir,
-        cssDirName: path.basename(parsed.dir),
-        cssName: parsed.name,
-      }),
+  const resolved = documents.map((doc): string =>
+    format(doc, {
+      cssDir: parsed.dir,
+      cssDirName: path.basename(parsed.dir),
+      cssName: parsed.name,
+    }),
   );
 
   return resolved;
