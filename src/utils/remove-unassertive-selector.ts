@@ -24,22 +24,20 @@ const ASSERTIVE_PSEUDO_CLASSES = [
 export function removeUnassertiveSelector(
   selector: PostcssSelectorParser.Root,
 ): PostcssSelectorParser.Root {
-  selector.walkPseudos(
-    (pseudoNode: PostcssSelectorParser.Node): void => {
-      const pseudoSelector = pseudoNode.value;
+  selector.walkPseudos((pseudoNode: PostcssSelectorParser.Node): void => {
+    const pseudoSelector = pseudoNode.value;
 
-      if (!pseudoSelector) {
-        return;
-      }
+    if (!pseudoSelector) {
+      return;
+    }
 
-      if (ASSERTIVE_PSEUDO_CLASSES.includes(pseudoSelector)) {
-        return;
-      }
+    if (ASSERTIVE_PSEUDO_CLASSES.includes(pseudoSelector)) {
+      return;
+    }
 
-      // Remove unassertive pseudo classes and all pseudo elements.
-      pseudoNode.remove();
-    },
-  );
+    // Remove unassertive pseudo classes and all pseudo elements.
+    pseudoNode.remove();
+  });
 
   return selector;
 }

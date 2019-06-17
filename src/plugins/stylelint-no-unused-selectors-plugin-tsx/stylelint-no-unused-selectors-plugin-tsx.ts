@@ -44,8 +44,8 @@ function extractSpecifiersFromImport(
   }
 
   if (ts.isNamedImports(clauseNode.namedBindings)) {
-    return clauseNode.namedBindings.elements.map(
-      (specifier): string => extractTextFromIdentifier(specifier.name),
+    return clauseNode.namedBindings.elements.map((specifier): string =>
+      extractTextFromIdentifier(specifier.name),
     );
   }
 
@@ -86,35 +86,33 @@ function extractSpecifierFromRequire(
 function extractArgumentsFromClassnamesCall(node: ts.CallExpression): string[] {
   const classes: string[] = [];
 
-  node.arguments.forEach(
-    (arg): void => {
-      switch (arg.kind) {
-        case ts.SyntaxKind.StringLiteral: {
-          const className = (arg as ts.StringLiteral).text;
-          if (className) {
-            classes.push(className);
-          }
-          break;
+  node.arguments.forEach((arg): void => {
+    switch (arg.kind) {
+      case ts.SyntaxKind.StringLiteral: {
+        const className = (arg as ts.StringLiteral).text;
+        if (className) {
+          classes.push(className);
         }
-
-        case ts.SyntaxKind.ObjectLiteralExpression: {
-          const stringProps = (arg as ts.ObjectLiteralExpression).properties.filter(
-            (prop): boolean =>
-              ts.isPropertyAssignment(prop) && ts.isStringLiteral(prop.name),
-          );
-          const keys = stringProps
-            .map(
-              (prop): string =>
-                ((prop as ts.PropertyAssignment).name as ts.StringLiteral).text,
-            )
-            .filter((key): boolean => !!key);
-
-          classes.push(...keys);
-          break;
-        }
+        break;
       }
-    },
-  );
+
+      case ts.SyntaxKind.ObjectLiteralExpression: {
+        const stringProps = (arg as ts.ObjectLiteralExpression).properties.filter(
+          (prop): boolean =>
+            ts.isPropertyAssignment(prop) && ts.isStringLiteral(prop.name),
+        );
+        const keys = stringProps
+          .map(
+            (prop): string =>
+              ((prop as ts.PropertyAssignment).name as ts.StringLiteral).text,
+          )
+          .filter((key): boolean => !!key);
+
+        classes.push(...keys);
+        break;
+      }
+    }
+  });
 
   return classes;
 }
