@@ -1,6 +1,6 @@
 # stylelint-no-unused-selectors
 
-[![CircleCI](https://circleci.com/gh/nodaguti/stylelint-no-unused-selectors.svg?style=svg)](https://circleci.com/gh/nodaguti/stylelint-no-unused-selectors) [![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com/) ![MIT License](https://img.shields.io/npm/l/stylelint-no-unused-selectors.svg) ![npm](https://img.shields.io/npm/v/stylelint-no-unused-selectors.svg)
+[![CircleCI](https://circleci.com/gh/nodaguti/stylelint-no-unused-selectors.svg?style=svg)](https://circleci.com/gh/nodaguti/stylelint-no-unused-selectors) [![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://renovatebot.com/) ![MIT License](https://img.shields.io/npm/l/stylelint-no-unused-selectors.svg) [![npm](https://img.shields.io/npm/v/stylelint-no-unused-selectors.svg)](https://www.npmjs.com/package/stylelint-no-unused-selectors)
 
 ## Concepts
 
