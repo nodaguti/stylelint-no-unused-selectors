@@ -21,7 +21,8 @@
     "lint": "tsc --project ./tsconfig.json --noEmit && eslint --cache 'src/**/*.{ts,tsx,js,jsx}'",
     "fmt": "prettier --write '*.{ts,tsx,js,jsx,json,md}' '{src,examples}/**/*.{ts,tsx,js,jsx,json,md}'",
     "check_fmt": "yarn fmt && git diff --exit-code",
-    "test": "jest"
+    "test": "jest",
+    "release": "yarn clean && yarn build && env-cmd semantic-release --no-ci"
   },
   "husky": {
     "hooks": {
@@ -59,6 +60,7 @@
     "@types/stylelint": "9.10.0",
     "@typescript-eslint/eslint-plugin": "1.10.2",
     "@typescript-eslint/parser": "1.10.2",
+    "env-cmd": "^9.0.3",
     "eslint": "5.16.0",
     "eslint-config-prettier": "5.0.0",
     "husky": "2.4.1",
