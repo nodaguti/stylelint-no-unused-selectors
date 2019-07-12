@@ -59,7 +59,7 @@
     "@types/string-template": "1.0.2",
     "@types/stylelint": "9.10.0",
     "@typescript-eslint/eslint-plugin": "1.12.0",
-    "@typescript-eslint/parser": "1.11.0",
+    "@typescript-eslint/parser": "1.12.0",
     "env-cmd": "9.0.3",
     "eslint": "6.0.1",
     "eslint-config-prettier": "5.1.0",
