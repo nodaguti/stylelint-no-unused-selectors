@@ -45,6 +45,9 @@ It works as a [stylelint](https://github.com/stylelint/stylelint) rule, and its 
 
 ```
 {
+  "plugins": [
+    "stylelint-no-unused-selectors"
+  ],
   "rules": {
     "plugin/no-unused-selectors": true
   }
