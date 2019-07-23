@@ -137,6 +137,7 @@ jobs:
       - cmd_attach_workspace
       - cmd_show_env
       - cmd_install_dependencies
+      - cmd_build
       - cmd_release
 
 workflows:
