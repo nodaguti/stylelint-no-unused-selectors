@@ -69,7 +69,7 @@
     "prettier": "1.18.2",
     "react": "16.8.6",
     "rimraf": "2.6.3",
-    "semantic-release": "15.13.18",
+    "semantic-release": "15.13.19",
     "stylelint": "10.1.0",
     "ts-jest": "24.0.2"
   }
