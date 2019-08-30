@@ -1625,10 +1625,15 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
-commander@^2.0.0, commander@^2.20.0:
+commander@^2.20.0:
   version "2.20.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.0.tgz#d58bb2b5c1ee8f87b0d340027e9e94e222c5a422"
   integrity sha512-7j2y+40w61zy6YC2iRNpUe/NwhNyoXrYpHMrSunaMG64nRnaf96zO/KMQR4OyN/UnE5KLyEBnKHd4aG3rskjpQ==
+
+commander@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/commander/-/commander-3.0.0.tgz#0641ea00838c7a964627f04cddc336a2deddd60a"
+  integrity sha512-pl3QrGOBa9RZaslQiqnnKX2J068wcQw7j9AIaBQ9/JEp5RY6je4jKTImg0Bd+rpoONSe7GUFSgkxLeo17m3Pow==
 
 commander@~2.19.0:
   version "2.19.0"
@@ -2182,12 +2187,12 @@ env-ci@^4.0.0:
     execa "^1.0.0"
     java-properties "^1.0.0"
 
-env-cmd@9.0.3:
-  version "9.0.3"
-  resolved "https://registry.yarnpkg.com/env-cmd/-/env-cmd-9.0.3.tgz#b85265f5a9fd4c5fc7d7eff34e341dc28c3f9801"
-  integrity sha512-DXNeSkLMlYOmq9At+GyvqpdIDuy3gRvz2Z77kN4cAhRbAGVmeiYaqdWqgHSTJ9wCck6ZD0rtbhHVcN7cc2j7rw==
+env-cmd@10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/env-cmd/-/env-cmd-10.0.0.tgz#0a7ae472b777001e349406de73e32335b3af0281"
+  integrity sha512-domhGomivBO2QL2h5JiQzX204fUEEVpuNiI0EQV2q3dXQPJu1QSd36DAmEvv52V893YiJ8S4QxrmfS67j2S3ZQ==
   dependencies:
-    commander "^2.0.0"
+    commander "^3.0.0"
     cross-spawn "^6.0.0"
 
 err-code@^1.0.0:
