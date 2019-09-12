@@ -71,6 +71,6 @@
     "rimraf": "2.7.0",
     "semantic-release": "15.13.24",
     "stylelint": "10.1.0",
-    "ts-jest": "24.0.2"
+    "ts-jest": "24.1.0"
   }
 }
