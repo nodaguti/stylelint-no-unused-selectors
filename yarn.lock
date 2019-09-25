@@ -5703,9 +5703,9 @@ optimist@^0.6.1:
     wordwrap "~0.0.2"
 
 option-t@^20.0.0:
-  version "20.2.3"
-  resolved "https://registry.yarnpkg.com/option-t/-/option-t-20.2.3.tgz#eef2488ee4e95b1a54044f594aa94a1666534cc1"
-  integrity sha512-4lwiFW7xd05uK15L9FgUlQqAD72b/CEFh3tharGmPrIOSxmatPTQuK7KrXZBT7o8+k3LDYIO+I6cTe4uI3mqQw==
+  version "20.2.4"
+  resolved "https://registry.yarnpkg.com/option-t/-/option-t-20.2.4.tgz#a4fc979644d449dae0fbe1a225404b207bbec9fa"
+  integrity sha512-TQKoWCmQcqbtzl+lkKYkh6WLR7C85c7beF3xobXanhNzdNQtelyjYxoMhsiJeuPe1eQtks/hhjnhK0e1FHYiKQ==
 
 optionator@^0.8.1, optionator@^0.8.2:
   version "0.8.2"
