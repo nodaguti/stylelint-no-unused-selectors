@@ -61,7 +61,7 @@
     "@typescript-eslint/eslint-plugin": "1.13.0",
     "@typescript-eslint/parser": "1.13.0",
     "env-cmd": "10.0.1",
-    "eslint": "6.4.0",
+    "eslint": "6.5.0",
     "eslint-config-prettier": "6.3.0",
     "husky": "3.0.7",
     "jest": "24.9.0",
