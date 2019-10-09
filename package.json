@@ -70,7 +70,7 @@
     "react": "16.10.2",
     "rimraf": "3.0.0",
     "semantic-release": "15.13.24",
-    "stylelint": "10.1.0",
+    "stylelint": "11.0.0",
     "ts-jest": "24.1.0"
   }
 }
