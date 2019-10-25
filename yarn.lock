@@ -5741,10 +5741,10 @@ optimist@^0.6.1:
     minimist "~0.0.1"
     wordwrap "~0.0.2"
 
-option-t@^20.0.0:
-  version "20.3.1"
-  resolved "https://registry.yarnpkg.com/option-t/-/option-t-20.3.1.tgz#6c9490f758edb587679bff73a1ff435e67cf9792"
-  integrity sha512-umjR1qtje0FD7AJbPmrzaaYCmHkh9yWDWUfRtcN8P3o5pv/JYaAVsXu0t3sRj2/Ogcp6Q9jrGRKBWX5DyiQFMQ==
+option-t@^21.0.0:
+  version "21.0.0"
+  resolved "https://registry.yarnpkg.com/option-t/-/option-t-21.0.0.tgz#5065ea86c90f92334fcfbdbc0188104a5160ca0e"
+  integrity sha512-TlYWO2tneeI62TIaj0skqZUqYSoNhR4HhAo9z2eI99iB8Oz9t+Z80144hxc7Ht5xobtcgsI+suDTLbpDXxe98g==
 
 optionator@^0.8.1, optionator@^0.8.2:
   version "0.8.2"
