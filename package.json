@@ -50,7 +50,7 @@
     "stylelint": "^9.10.1 || ^10.0.0"
   },
   "devDependencies": {
-    "@babel/types": "7.7.1",
+    "@babel/types": "7.7.2",
     "@types/array.prototype.flatmap": "1.2.0",
     "@types/jest": "24.0.22",
     "@types/jsdom": "12.2.4",
