@@ -54,7 +54,7 @@
     "@types/array.prototype.flatmap": "1.2.0",
     "@types/jest": "24.0.23",
     "@types/jsdom": "12.2.4",
-    "@types/node": "12.12.16",
+    "@types/node": "12.12.17",
     "@types/react": "16.9.16",
     "@types/string-template": "1.0.2",
     "@types/stylelint": "9.10.1",
