@@ -18,6 +18,7 @@
   "scripts": {
     "clean": "rimraf dist .tsbuildinfo",
     "build": "tsc --project ./tsconfig.json --outDir dist",
+    "prepare": "tsc --project ./tsconfig.json --outDir dist",
     "lint": "tsc --project ./tsconfig.json --noEmit && eslint --cache 'src/**/*.{ts,tsx,js,jsx}'",
     "fmt": "prettier --write '*.{ts,tsx,js,jsx,json,md}' '{src,examples}/**/*.{ts,tsx,js,jsx,json,md}'",
     "check_fmt": "yarn fmt && git diff --exit-code",
