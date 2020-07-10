@@ -65,42 +65,45 @@ The default configuration is:
 ```json
 {
   "rules": {
-    "plugin/no-unused-selectors": {
-      "resolve": {
-        "documents": [
-          "{cssDir}/{cssName}.tsx",
-          "{cssDir}/{cssName}.jsx",
-          "{cssDir}/{cssName}.html",
-          "{cssDir}/{cssName}.htm",
-          "{cssDir}/{cssDirName}.tsx",
-          "{cssDir}/{cssDirName}.jsx",
-          "{cssDir}/{cssDirName}.html",
-          "{cssDir}/{cssDirName}.htm",
-          "{cssDir}/index.tsx",
-          "{cssDir}/index.jsx",
-          "{cssDir}/index.html",
-          "{cssDir}/index.htm"
-        ]
-      },
-      "plugins": [
-        {
-          "test": "\\.html?$",
-          "plugin": "stylelint-no-unused-selectors-plugin-html"
+    "plugin/no-unused-selectors": [
+      true,
+      {
+        "resolve": {
+          "documents": [
+            "{cssDir}/{cssName}.tsx",
+            "{cssDir}/{cssName}.jsx",
+            "{cssDir}/{cssName}.html",
+            "{cssDir}/{cssName}.htm",
+            "{cssDir}/{cssDirName}.tsx",
+            "{cssDir}/{cssDirName}.jsx",
+            "{cssDir}/{cssDirName}.html",
+            "{cssDir}/{cssDirName}.htm",
+            "{cssDir}/index.tsx",
+            "{cssDir}/index.jsx",
+            "{cssDir}/index.html",
+            "{cssDir}/index.htm"
+          ]
         },
-        {
-          "test": "\\.jsx?$",
-          "plugin": "stylelint-no-unused-selectors-plugin-jsx",
-          "options": {
-            "sourceType": "module",
-            "plugins": ["jsx", "flow"]
+        "plugins": [
+          {
+            "test": "\\.html?$",
+            "plugin": "stylelint-no-unused-selectors-plugin-html"
+          },
+          {
+            "test": "\\.jsx?$",
+            "plugin": "stylelint-no-unused-selectors-plugin-jsx",
+            "options": {
+              "sourceType": "module",
+              "plugins": ["jsx", "flow"]
+            }
+          },
+          {
+            "test": "\\.tsx$",
+            "plugin": "stylelint-no-unused-selectors-plugin-tsx"
           }
-        },
-        {
-          "test": "\\.tsx$",
-          "plugin": "stylelint-no-unused-selectors-plugin-tsx"
-        }
-      ]
-    }
+        ]
+      }
+    ]
   }
 }
 ```

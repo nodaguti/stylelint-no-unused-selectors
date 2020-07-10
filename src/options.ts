@@ -17,10 +17,19 @@ export interface Options {
   plugins: PluginSetting[];
 }
 
+const isResolveObject = (
+  o: unknown,
+): o is {
+  documents: unknown;
+} => {
+  return Object.prototype.hasOwnProperty.call(o, 'documents');
+};
+
 const optionsSchema = {
-  resolve: {
-    documents: [(a: unknown): boolean => typeof a === 'string'],
-  },
+  resolve: (r: unknown): boolean =>
+    isResolveObject(r) &&
+    Array.isArray(r.documents) &&
+    r.documents.every((item): boolean => typeof item === 'string'),
   plugins: [
     (p: unknown): boolean =>
       typeof p === 'object' && p !== null && 'test' in p && 'plugin' in p,
