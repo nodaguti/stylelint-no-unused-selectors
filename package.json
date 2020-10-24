@@ -40,7 +40,7 @@
     "@babel/traverse": "^7.4.4",
     "array.prototype.flatmap": "^1.2.1",
     "jsdom": "^15.0.0",
-    "option-t": "^20.0.0",
+    "option-t": "^23.0.2",
     "postcss-resolve-nested-selector": "^0.1.1",
     "postcss-selector-parser": "^6.0.2",
     "string-template": "^1.0.0",
