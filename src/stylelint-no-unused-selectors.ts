@@ -34,10 +34,11 @@ function getCSSSource(root: Root): Undefinable<string> {
 }
 
 function rule(
-  options?: DeepPartial<Options> | boolean,
+  primaryOption: boolean,
+  secondaryOptionObject?: DeepPartial<Options>,
 ): (root: Root, result: Result) => Promise<void> {
   return async (root, result): Promise<void> => {
-    if (options === false) {
+    if (primaryOption === false) {
       return;
     }
 
@@ -50,7 +51,7 @@ function rule(
     const opts = normaliseOptions(
       result,
       ruleName,
-      typeof options === 'object' ? options : {},
+      typeof secondaryOptionObject === 'object' ? secondaryOptionObject : {},
     );
 
     if (!opts) {
