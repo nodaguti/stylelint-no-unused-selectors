@@ -1,30 +1,34 @@
 import path from 'path';
-import stylelint from 'stylelint';
+import stylelint, { Configuration } from 'stylelint';
 
 const fixturesRoot = path.join(__dirname, '..', '..', 'examples', 'jsx');
-const config = {
+
+const createConfig = (isEnabled = true): Partial<Configuration> => ({
   plugins: [path.join(__dirname, '..', '..', 'dist', 'index.js')],
   rules: {
-    'plugin/no-unused-selectors': {
-      plugins: [
-        {
-          test: '\\.jsx?$',
-          plugin: 'stylelint-no-unused-selectors-plugin-jsx',
-          options: {
-            sourceType: 'module',
-            plugins: [],
+    'plugin/no-unused-selectors': [
+      isEnabled,
+      {
+        plugins: [
+          {
+            test: '\\.jsx?$',
+            plugin: 'stylelint-no-unused-selectors-plugin-jsx',
+            options: {
+              sourceType: 'module',
+              plugins: [],
+            },
           },
-        },
-      ],
-    },
+        ],
+      },
+    ],
   },
-};
+});
 
 test('Throws a parse error when plugins in the @babel/parser options are left empty and a jsx file is tried to be linted', async (): Promise<
   void
 > => {
   const options = {
-    config,
+    config: createConfig(),
     files: path.join(fixturesRoot, '*.css'),
   };
 
@@ -38,4 +42,15 @@ test('Throws a parse error when plugins in the @babel/parser options are left em
     expect(err).toBeInstanceOf(Error);
     expect((err as Error).message).toMatch('Unexpected token');
   }
+});
+
+test('Does nothing if rule is disabled', async (): Promise<void> => {
+  const options = {
+    config: createConfig(false),
+    files: path.join(fixturesRoot, '*.css'),
+  };
+
+  const result = await stylelint.lint(options);
+
+  expect(result.errored).toBe(false);
 });
