@@ -35,15 +35,15 @@ See [the documentations of built-in plugins](#built-in-plugins) for more details
 
 ## Installation
 
-```
-yarn add stylelint stylelint-no-unused-selectors
+```sh
+yarn add --dev stylelint stylelint-no-unused-selectors
 ```
 
 ## Usage
 
 It works as a [stylelint](https://github.com/stylelint/stylelint) rule, and its plugin name is `plugin/no-unused-selectors`. An example configuration of stylelint would look like:
 
-```
+```json
 {
   "plugins": [
     "stylelint-no-unused-selectors"
