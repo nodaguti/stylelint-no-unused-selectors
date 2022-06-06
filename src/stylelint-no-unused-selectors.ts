@@ -6,7 +6,7 @@ import { andThenForUndefinable } from 'option-t/lib/Undefinable/andThen';
 import flatMap from 'array.prototype.flatmap';
 
 import stylelint from 'stylelint';
-import { Root, Result } from 'postcss';
+import { Root, Result, Rule } from 'postcss';
 // @ts-ignore
 import resolveNestedSelector from 'postcss-resolve-nested-selector';
 import createSelectorProcessor from 'postcss-selector-parser';
@@ -75,38 +75,40 @@ function rule(
 
     await plugin.parse(document, pluginOptions);
 
-    root.walkRules(
-      async (rule): Promise<void> => {
-        if (!rule.selectors) {
-          return;
-        }
+    const rules: Rule[] = [];
+    root.walkRules((rule): void => {
+      rules.push(rule);
+    });
 
-        const resolvedSelectors = flatMap(
-          rule.selectors,
-          (selectors): string[] => resolveNestedSelector(selectors, rule),
+    for (const rule of rules) {
+      if (!rule.selectors) {
+        return;
+      }
+
+      const resolvedSelectors = flatMap(rule.selectors, (selectors): string[] =>
+        resolveNestedSelector(selectors, rule),
+      );
+
+      const processSelector = async (selector: string): Promise<void> => {
+        const selectorAst = await selectorProcessor.ast(selector);
+        const filteredAst = removeUnassertiveSelector(selectorAst);
+        const matched = await unwrapUndefinable(plugin).match(
+          filteredAst,
+          pluginOptions,
         );
 
-        async function processSelector(selector: string): Promise<void> {
-          const selectorAst = await selectorProcessor.ast(selector);
-          const filteredAst = removeUnassertiveSelector(selectorAst);
-          const matched = await unwrapUndefinable(plugin).match(
-            filteredAst,
-            pluginOptions,
-          );
-
-          if (!matched) {
-            stylelint.utils.report({
-              result,
-              ruleName,
-              node: rule,
-              message: messages.rejected(selector, path.basename(documentPath)),
-            });
-          }
+        if (!matched) {
+          stylelint.utils.report({
+            result,
+            ruleName,
+            node: rule,
+            message: messages.rejected(selector, path.basename(documentPath)),
+          });
         }
+      };
 
-        await Promise.all(resolvedSelectors.map(processSelector));
-      },
-    );
+      await Promise.all(resolvedSelectors.map(processSelector));
+    }
   };
 }
 
