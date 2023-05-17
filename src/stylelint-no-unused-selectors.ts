@@ -41,7 +41,6 @@ function rule(
     }
 
     const cssSrc = getCSSSource(root);
-
     if (!cssSrc) {
       return;
     }
@@ -51,25 +50,23 @@ function rule(
       ruleName,
       typeof options === 'object' ? options : {},
     );
-
     if (!opts) {
       return;
     }
 
     const documentPaths = resolveDocuments(
       cssSrc,
-      opts.resolve.suffixesToStrip,
-      opts.resolve.documents,
+      opts.suffixesToStrip,
+      opts.documents,
     );
     const resolution = await resolveDocument(documentPaths);
-
     if (!resolution) {
       return;
     }
 
     const { path: documentPath, document } = resolution;
-    const pluginSet = await getPlugin(documentPath, opts.plugins);
 
+    const pluginSet = await getPlugin(documentPath, opts.plugins);
     if (!pluginSet) {
       return;
     }
@@ -87,7 +84,7 @@ function rule(
         resolveNestedSelector(selector, rule),
       );
 
-      function processSelector(selector: string) {
+      resolvedSelectors.forEach((selector: string) => {
         const selectorAst = selectorProcessor.astSync(selector);
         const filteredAst = removeUnassertiveSelector(selectorAst);
         const matched = unwrapUndefinable(plugin).match(
@@ -103,14 +100,12 @@ function rule(
             message: messages.rejected(selector, path.basename(documentPath)),
           });
         }
-      }
-
-      resolvedSelectors.forEach(processSelector);
+      });
     });
   };
 }
 
-rule.ruleName = 'ruleName';
+rule.ruleName = ruleName;
 rule.messages = messages;
 
 export default stylelint.createPlugin(ruleName, rule);

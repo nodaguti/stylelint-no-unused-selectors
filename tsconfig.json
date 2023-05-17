@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "skipLibCheck": true,
+
     // language features
     "esModuleInterop": true,
     "moduleResolution": "node",

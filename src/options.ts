@@ -10,31 +10,27 @@ export interface PluginSetting {
 }
 
 export interface Options {
-  resolve: {
-    suffixesToStrip: string[];
-    documents: string[];
-  };
+  suffixesToStrip: string[];
+  documents: string[];
   plugins: PluginSetting[];
 }
 
 const defaultOptions: Options = {
-  resolve: {
-    suffixesToStrip: ['.module'],
-    documents: [
-      '{cssDir}/{cssName}.tsx',
-      '{cssDir}/{cssName}.jsx',
-      '{cssDir}/{cssName}.html',
-      '{cssDir}/{cssName}.htm',
-      '{cssDir}/{cssDirName}.tsx',
-      '{cssDir}/{cssDirName}.jsx',
-      '{cssDir}/{cssDirName}.html',
-      '{cssDir}/{cssDirName}.htm',
-      '{cssDir}/index.tsx',
-      '{cssDir}/index.jsx',
-      '{cssDir}/index.html',
-      '{cssDir}/index.htm',
-    ],
-  },
+  suffixesToStrip: ['.module'],
+  documents: [
+    '{cssDir}/{cssName}.tsx',
+    '{cssDir}/{cssName}.jsx',
+    '{cssDir}/{cssName}.html',
+    '{cssDir}/{cssName}.htm',
+    '{cssDir}/index.tsx',
+    '{cssDir}/index.jsx',
+    '{cssDir}/index.html',
+    '{cssDir}/index.htm',
+    '{cssDir}/{cssDirName}.tsx',
+    '{cssDir}/{cssDirName}.jsx',
+    '{cssDir}/{cssDirName}.html',
+    '{cssDir}/{cssDirName}.htm',
+  ],
   plugins: [
     {
       test: '\\.html?$',
@@ -63,8 +59,17 @@ export function normaliseOptions(
   const areOptionsValid = stylelint.utils.validateOptions(result, ruleName, {
     actual: options,
     possible: {
-      suffixesToStrip: [(a: unknown): boolean => typeof a === 'string'],
-      documents: [(a: unknown): boolean => typeof a === 'string'],
+      suffixesToStrip: [(s: unknown): boolean => typeof s === 'string'],
+      documents: [(d: unknown): boolean => typeof d === 'string'],
+      plugins: [
+        (p: unknown): boolean =>
+          typeof p === 'object' &&
+          p !== null &&
+          'test' in p &&
+          typeof p.test === 'string' &&
+          'plugin' in p &&
+          typeof p.plugin === 'string',
+      ],
     },
     optional: true,
   });

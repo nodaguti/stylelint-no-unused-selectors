@@ -19,7 +19,10 @@ export function resolveDocuments(
   if (applicableSuffix) {
     parsed = {
       ...parsed,
-      name: parsed.name.slice(0, applicableSuffix.length),
+      name: parsed.name.substring(
+        0,
+        parsed.name.length - applicableSuffix.length,
+      ),
     };
   }
 

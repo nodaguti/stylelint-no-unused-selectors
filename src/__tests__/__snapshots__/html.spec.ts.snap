@@ -1,21 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Disabllow selectors that are not used in a HTML file 1`] = `
-Object {
-  "deprecations": Array [],
+{
+  "deprecations": [],
   "errored": true,
-  "invalidOptionWarnings": Array [],
-  "parseErrors": Array [],
-  "warnings": Array [
-    Object {
+  "invalidOptionWarnings": [],
+  "parseErrors": [],
+  "warnings": [
+    {
       "column": 1,
+      "endColumn": 2,
+      "endLine": 29,
       "line": 27,
       "rule": "plugin/no-unused-selectors",
       "severity": "error",
       "text": ".not-found is defined but doesn't match any elements in test.html. (plugin/no-unused-selectors)",
     },
-    Object {
+    {
       "column": 1,
+      "endColumn": 2,
+      "endLine": 34,
       "line": 32,
       "rule": "plugin/no-unused-selectors",
       "severity": "error",
