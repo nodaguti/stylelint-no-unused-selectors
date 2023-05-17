@@ -8,9 +8,21 @@ const readFile = promisify(fs.readFile);
 
 export function resolveDocuments(
   cssPath: string,
+  suffixesToStrip: string[],
   documents: string[],
 ): string[] {
-  const parsed = path.parse(cssPath);
+  let parsed = path.parse(cssPath);
+
+  const applicableSuffix = suffixesToStrip.find((suffix): boolean =>
+    parsed.name.toLowerCase().endsWith(suffix.toLowerCase()),
+  );
+  if (applicableSuffix) {
+    parsed = {
+      ...parsed,
+      name: parsed.name.slice(0, applicableSuffix.length),
+    };
+  }
+
   const resolved = documents.map((doc): string =>
     format(doc, {
       cssDir: parsed.dir,

@@ -57,7 +57,11 @@ function rule(
       return;
     }
 
-    const documentPaths = resolveDocuments(cssSrc, opts.resolve.documents);
+    const documentPaths = resolveDocuments(
+      cssSrc,
+      opts.resolve.suffixesToStrip,
+      opts.resolve.documents,
+    );
     const resolution = await resolveDocument(documentPaths);
 
     if (!resolution) {

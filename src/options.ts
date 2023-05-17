@@ -12,6 +12,7 @@ export interface PluginSetting {
 
 export interface Options {
   resolve: {
+    suffixesToStrip: string[];
     documents: string[];
   };
   plugins: PluginSetting[];
@@ -19,6 +20,7 @@ export interface Options {
 
 const optionsSchema = {
   resolve: {
+    suffixesToStrip: [(a: unknown): boolean => typeof a === 'string'],
     documents: [(a: unknown): boolean => typeof a === 'string'],
   },
   plugins: [
@@ -29,6 +31,7 @@ const optionsSchema = {
 
 const defaultOptions: Options = {
   resolve: {
+    suffixesToStrip: ['.module'],
     documents: [
       '{cssDir}/{cssName}.tsx',
       '{cssDir}/{cssName}.jsx',
