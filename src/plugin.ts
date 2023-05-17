@@ -4,11 +4,11 @@ import PostcssSelectorParser from 'postcss-selector-parser';
 import { PluginSetting } from './options';
 
 export interface Plugin {
-  parse(document: string, pluginOptions?: unknown): void | Promise<void>;
+  parse(document: string, pluginOptions?: unknown): void;
   match(
     selectorAst: PostcssSelectorParser.Root,
     pluginOptions?: unknown,
-  ): boolean | Promise<boolean>;
+  ): boolean;
 }
 
 async function importPlugin(pluginName: string): Promise<Undefinable<Plugin>> {

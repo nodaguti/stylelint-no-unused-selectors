@@ -1,6 +1,5 @@
 import { Undefinable } from 'option-t/lib/Undefinable';
-import stylelint from 'stylelint';
-import { Result } from 'postcss';
+import stylelint, { PostcssResult } from 'stylelint';
 
 import { DeepPartial } from './types/deep-partial';
 
@@ -17,17 +16,6 @@ export interface Options {
   };
   plugins: PluginSetting[];
 }
-
-const optionsSchema = {
-  resolve: {
-    suffixesToStrip: [(a: unknown): boolean => typeof a === 'string'],
-    documents: [(a: unknown): boolean => typeof a === 'string'],
-  },
-  plugins: [
-    (p: unknown): boolean =>
-      typeof p === 'object' && p !== null && 'test' in p && 'plugin' in p,
-  ],
-};
 
 const defaultOptions: Options = {
   resolve: {
@@ -68,13 +56,16 @@ const defaultOptions: Options = {
 };
 
 export function normaliseOptions(
-  result: Result,
+  result: PostcssResult,
   ruleName: string,
   options: Undefinable<DeepPartial<Options>>,
 ): Undefinable<Options> {
   const areOptionsValid = stylelint.utils.validateOptions(result, ruleName, {
     actual: options,
-    possible: optionsSchema,
+    possible: {
+      suffixesToStrip: [(a: unknown): boolean => typeof a === 'string'],
+      documents: [(a: unknown): boolean => typeof a === 'string'],
+    },
     optional: true,
   });
 
