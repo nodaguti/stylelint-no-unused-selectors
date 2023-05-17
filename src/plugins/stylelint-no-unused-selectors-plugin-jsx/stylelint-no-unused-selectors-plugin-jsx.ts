@@ -237,7 +237,7 @@ function extractClassesAndIds(ast: File): { classes: string[]; ids: string[] } {
   return { classes, ids };
 }
 
-let cache: {
+const cache: {
   ast: Undefinable<File>;
   classes: string[];
   ids: string[];
@@ -270,8 +270,12 @@ export function match(selectorAst: PostcssSelectorParser.Root): boolean {
   }
 
   const selector = selectorAst.toString();
+  const camelcaseSelector = selector.replace(/-./g, (x) => x.toUpperCase()[1]);
 
-  if (cache.classes.includes(selector)) {
+  if (
+    cache.classes.includes(selector) ||
+    cache.classes.includes(camelcaseSelector)
+  ) {
     return true;
   }
 

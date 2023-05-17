@@ -1,6 +1,5 @@
 import { Undefinable } from 'option-t/lib/Undefinable';
-import stylelint from 'stylelint';
-import { Result } from 'postcss';
+import stylelint, { PostcssResult } from 'stylelint';
 
 import { DeepPartial } from './types/deep-partial';
 
@@ -11,39 +10,27 @@ export interface PluginSetting {
 }
 
 export interface Options {
-  resolve: {
-    documents: string[];
-  };
+  suffixesToStrip: string[];
+  documents: string[];
   plugins: PluginSetting[];
 }
 
-const optionsSchema = {
-  resolve: {
-    documents: [(a: unknown): boolean => typeof a === 'string'],
-  },
-  plugins: [
-    (p: unknown): boolean =>
-      typeof p === 'object' && p !== null && 'test' in p && 'plugin' in p,
-  ],
-};
-
 const defaultOptions: Options = {
-  resolve: {
-    documents: [
-      '{cssDir}/{cssName}.tsx',
-      '{cssDir}/{cssName}.jsx',
-      '{cssDir}/{cssName}.html',
-      '{cssDir}/{cssName}.htm',
-      '{cssDir}/{cssDirName}.tsx',
-      '{cssDir}/{cssDirName}.jsx',
-      '{cssDir}/{cssDirName}.html',
-      '{cssDir}/{cssDirName}.htm',
-      '{cssDir}/index.tsx',
-      '{cssDir}/index.jsx',
-      '{cssDir}/index.html',
-      '{cssDir}/index.htm',
-    ],
-  },
+  suffixesToStrip: ['.module'],
+  documents: [
+    '{cssDir}/{cssName}.tsx',
+    '{cssDir}/{cssName}.jsx',
+    '{cssDir}/{cssName}.html',
+    '{cssDir}/{cssName}.htm',
+    '{cssDir}/index.tsx',
+    '{cssDir}/index.jsx',
+    '{cssDir}/index.html',
+    '{cssDir}/index.htm',
+    '{cssDir}/{cssDirName}.tsx',
+    '{cssDir}/{cssDirName}.jsx',
+    '{cssDir}/{cssDirName}.html',
+    '{cssDir}/{cssDirName}.htm',
+  ],
   plugins: [
     {
       test: '\\.html?$',
@@ -65,13 +52,25 @@ const defaultOptions: Options = {
 };
 
 export function normaliseOptions(
-  result: Result,
+  result: PostcssResult,
   ruleName: string,
   options: Undefinable<DeepPartial<Options>>,
 ): Undefinable<Options> {
   const areOptionsValid = stylelint.utils.validateOptions(result, ruleName, {
     actual: options,
-    possible: optionsSchema,
+    possible: {
+      suffixesToStrip: [(s: unknown): boolean => typeof s === 'string'],
+      documents: [(d: unknown): boolean => typeof d === 'string'],
+      plugins: [
+        (p: unknown): boolean =>
+          typeof p === 'object' &&
+          p !== null &&
+          'test' in p &&
+          typeof p.test === 'string' &&
+          'plugin' in p &&
+          typeof p.plugin === 'string',
+      ],
+    },
     optional: true,
   });
 

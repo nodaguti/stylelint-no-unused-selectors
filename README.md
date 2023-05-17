@@ -66,22 +66,21 @@ The default configuration is:
 {
   "rules": {
     "plugin/no-unused-selectors": {
-      "resolve": {
-        "documents": [
-          "{cssDir}/{cssName}.tsx",
-          "{cssDir}/{cssName}.jsx",
-          "{cssDir}/{cssName}.html",
-          "{cssDir}/{cssName}.htm",
-          "{cssDir}/{cssDirName}.tsx",
-          "{cssDir}/{cssDirName}.jsx",
-          "{cssDir}/{cssDirName}.html",
-          "{cssDir}/{cssDirName}.htm",
-          "{cssDir}/index.tsx",
-          "{cssDir}/index.jsx",
-          "{cssDir}/index.html",
-          "{cssDir}/index.htm"
-        ]
-      },
+      "suffixesToStrip": [".module"],
+      "documents": [
+        "{cssDir}/{cssName}.tsx",
+        "{cssDir}/{cssName}.jsx",
+        "{cssDir}/{cssName}.html",
+        "{cssDir}/{cssName}.htm",
+        "{cssDir}/index.tsx",
+        "{cssDir}/index.jsx",
+        "{cssDir}/index.html",
+        "{cssDir}/index.htm",
+        "{cssDir}/{cssDirName}.tsx",
+        "{cssDir}/{cssDirName}.jsx",
+        "{cssDir}/{cssDirName}.html",
+        "{cssDir}/{cssDirName}.htm"
+      ]
       "plugins": [
         {
           "test": "\\.html?$",
@@ -105,7 +104,7 @@ The default configuration is:
 }
 ```
 
-### resolve.documents
+### documents
 
 Type: `Array<string>`
 
@@ -118,6 +117,12 @@ Available variables are as follows:
 | `{cssDir}`     | The path to a directory that contains a CSS file  | /project_root/components/Foo                   |
 | `{cssDirName}` | The name of a directory that contains a CSS file  | Foo                                            |
 | `{cssName}`    | The file name of a CSS file without its extension | Bar                                            |
+
+### suffixesToStrip
+
+Type: `Array<string>`
+
+If the cssName ends with one of these suffixes, then the suffix will be remove from the cssName.
 
 ### plugins
 

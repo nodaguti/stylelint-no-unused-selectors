@@ -1,14 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Disabllow selectors that are not used in a TSX file using CSS Modules 1`] = `
-Object {
-  "deprecations": Array [],
+{
+  "deprecations": [],
   "errored": true,
-  "invalidOptionWarnings": Array [],
-  "parseErrors": Array [],
-  "warnings": Array [
-    Object {
+  "invalidOptionWarnings": [],
+  "parseErrors": [],
+  "warnings": [
+    {
       "column": 1,
+      "endColumn": 2,
+      "endLine": 24,
       "line": 22,
       "rule": "plugin/no-unused-selectors",
       "severity": "error",

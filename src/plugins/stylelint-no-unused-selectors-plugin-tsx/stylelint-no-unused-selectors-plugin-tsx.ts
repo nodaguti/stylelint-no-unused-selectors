@@ -14,10 +14,12 @@ function extractAttributeValue(node: ts.JsxAttribute): Undefinable<string> {
     return;
   }
 
-  return (node.initializer as ts.StringLiteral).text;
+  return node.initializer.text;
 }
 
-function extractTextFromIdentifier(node: ts.Identifier): string {
+function extractTextFromIdentifier(
+  node: Pick<ts.Identifier, 'text' | 'escapedText'>,
+): string {
   return node.text || (node.escapedText as string);
 }
 
@@ -321,7 +323,7 @@ function extractClassesAndIds(
   return { classes, ids };
 }
 
-let cache: {
+const cache: {
   ast: Undefinable<ts.SourceFile>;
   classes: string[];
   ids: string[];
@@ -352,8 +354,12 @@ export function match(selectorAst: PostcssSelectorParser.Root): boolean {
   }
 
   const selector = selectorAst.toString();
+  const camelcaseSelector = selector.replace(/-./g, (x) => x.toUpperCase()[1]);
 
-  if (cache.classes.includes(selector)) {
+  if (
+    cache.classes.includes(selector) ||
+    cache.classes.includes(camelcaseSelector)
+  ) {
     return true;
   }
 
